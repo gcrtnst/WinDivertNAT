@@ -27,4 +27,8 @@
     </None>
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="WinDivertSharp" Version="1.4.3.3" />
+  </ItemGroup>
+
 </Project>
