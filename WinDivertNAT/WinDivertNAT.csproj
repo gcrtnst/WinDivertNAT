@@ -9,7 +9,7 @@
     <PackageProjectUrl>https://github.com/gcrtnst/WinDivertNAT</PackageProjectUrl>
     <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
-    <Copyright>gcrtnst</Copyright>
+    <Copyright>Copyright gcrtnst</Copyright>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
