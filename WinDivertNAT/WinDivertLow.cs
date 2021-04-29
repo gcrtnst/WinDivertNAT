@@ -34,11 +34,19 @@
 
 using Microsoft.Win32.SafeHandles;
 using System;
+using System.ComponentModel;
+using WinDivertSharp;
 
 namespace WinDivertNAT
 {
-    internal class WinDivertLow
+    internal static class WinDivertLow
     {
+        public static SafeWinDivertHandle WinDivertOpen(string filter, WinDivertLayer layer, short priority, WinDivertOpenFlags flags)
+        {
+            var handle = WinDivert.WinDivertOpen(filter, layer, priority, flags);
+            if (handle == IntPtr.Zero) throw new Win32Exception();
+            return new SafeWinDivertHandle(handle, true);
+        }
     }
 
     internal class SafeWinDivertHandle : SafeHandleZeroOrMinusOneIsInvalid
@@ -48,6 +56,6 @@ namespace WinDivertNAT
             SetHandle(existingHandle);
         }
 
-        protected override bool ReleaseHandle() => WinDivertSharp.WinDivert.WinDivertClose(handle);
+        protected override bool ReleaseHandle() => WinDivert.WinDivertClose(handle);
     }
 }
