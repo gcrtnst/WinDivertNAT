@@ -47,6 +47,12 @@ namespace WinDivertNAT
             return new SafeWinDivertHandle(hraw, true);
         }
 
+        public static void WinDivertSetParam(SafeWinDivertHandle handle, WinDivertConstants.WinDivertParam param, ulong value) => UseHandle(handle, (hraw) =>
+        {
+            var result = NativeMethods.WinDivertSetParam(hraw, param, value);
+            if (!result) throw new Win32Exception();
+        });
+
         public static ulong WinDivertGetParam(SafeWinDivertHandle handle, WinDivertConstants.WinDivertParam param) => UseHandle(handle, (hraw) =>
         {
             var result = NativeMethods.WinDivertGetParam(hraw, param, out var value);
