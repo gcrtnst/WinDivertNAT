@@ -66,7 +66,9 @@ namespace WinDivertNAT
         public ulong VersionMajor => WinDivertLow.WinDivertGetParam(handle, WinDivertConstants.WinDivertParam.VersionMajor);
         public ulong VersionMinor => WinDivertLow.WinDivertGetParam(handle, WinDivertConstants.WinDivertParam.VersionMinor);
 
-        public void Shutdown(WinDivertConstants.WinDivertShutdown how) => WinDivertLow.WinDivertShutdown(handle, how);
+        public void ShutdownRecv() => WinDivertLow.WinDivertShutdown(handle, WinDivertConstants.WinDivertShutdown.Recv);
+        public void ShutdownSend() => WinDivertLow.WinDivertShutdown(handle, WinDivertConstants.WinDivertShutdown.Send);
+        public void Shutdown() => WinDivertLow.WinDivertShutdown(handle, WinDivertConstants.WinDivertShutdown.Both);
         public void Dispose() => handle.Dispose();
     }
 }
