@@ -40,7 +40,7 @@ namespace WinDivertNAT
 {
     internal static class WinDivertLow
     {
-        public static SafeWinDivertHandle WinDivertOpen(string filter, WinDivertConstants.Layer layer, short priority, WinDivertConstants.Flag flags)
+        public static SafeWinDivertHandle WinDivertOpen(string filter, WinDivertConstants.WinDivertLayer layer, short priority, WinDivertConstants.WinDivertFlag flags)
         {
             var handle = NativeMethods.WinDivertOpen(filter, layer, priority, flags);
             if (handle == IntPtr.Zero || handle == (IntPtr)(-1)) throw new Win32Exception();

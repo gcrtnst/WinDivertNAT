@@ -40,7 +40,7 @@ namespace WinDivertNAT
     internal static class NativeMethods
     {
         [DllImport("WinDivert.dll", ExactSpelling = true, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi, BestFitMapping = false, ThrowOnUnmappableChar = true, PreserveSig = true, SetLastError = true)]
-        public static extern IntPtr WinDivertOpen(in string filter, WinDivertConstants.Layer layer, short priority, WinDivertConstants.Flag flags);
+        public static extern IntPtr WinDivertOpen(in string filter, WinDivertConstants.WinDivertLayer layer, short priority, WinDivertConstants.WinDivertFlag flags);
 
         [DllImport("WinDivert.dll", ExactSpelling = true, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi, BestFitMapping = false, ThrowOnUnmappableChar = true, PreserveSig = true, SetLastError = true)]
         public static extern bool WinDivertClose(IntPtr handle);
@@ -48,7 +48,7 @@ namespace WinDivertNAT
 
     internal static class WinDivertConstants
     {
-        public enum Layer
+        public enum WinDivertLayer
         {
             Network = 0,
             NetworkForward = 1,
@@ -58,7 +58,7 @@ namespace WinDivertNAT
         }
 
         [Flags]
-        public enum Flag : ulong
+        public enum WinDivertFlag : ulong
         {
             Sniff = 0x0001,
             Drop = 0x0002,
