@@ -32,9 +32,29 @@
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 
+using Microsoft.Win32.SafeHandles;
+using System;
+using System.ComponentModel;
+
 namespace WinDivertNAT
 {
     internal static class WinDivertLow
     {
+        public static SafeWinDivertHandle WinDivertOpen(string filter, WinDivertConstants.Layer layer, short priority, WinDivertConstants.Flag flags)
+        {
+            var handle = NativeMethods.WinDivertOpen(filter, layer, priority, flags);
+            if (handle == IntPtr.Zero || handle == (IntPtr)(-1)) throw new Win32Exception();
+            return new SafeWinDivertHandle(handle, true);
+        }
+    }
+
+    internal class SafeWinDivertHandle : SafeHandleZeroOrMinusOneIsInvalid
+    {
+        internal SafeWinDivertHandle(IntPtr existingHandle, bool ownsHandle) : base(ownsHandle)
+        {
+            SetHandle(existingHandle);
+        }
+
+        protected override bool ReleaseHandle() => NativeMethods.WinDivertClose(handle);
     }
 }
