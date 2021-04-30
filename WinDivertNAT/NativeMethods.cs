@@ -32,9 +32,42 @@
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 
+using System;
+using System.Runtime.InteropServices;
+
 namespace WinDivertNAT
 {
-    internal class NativeMethods
+    internal static class NativeMethods
     {
+        [DllImport("WinDivert.dll", ExactSpelling = true, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi, BestFitMapping = false, ThrowOnUnmappableChar = true, PreserveSig = true, SetLastError = true)]
+        public static extern IntPtr WinDivertOpen(in string filter, WinDivertConstants.Layer layer, short priority, WinDivertConstants.Flag flags);
+
+        [DllImport("WinDivert.dll", ExactSpelling = true, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi, BestFitMapping = false, ThrowOnUnmappableChar = true, PreserveSig = true, SetLastError = true)]
+        public static extern bool WinDivertClose(IntPtr handle);
+    }
+
+    internal static class WinDivertConstants
+    {
+        public enum Layer
+        {
+            Network = 0,
+            NetworkForward = 1,
+            Flow = 2,
+            Socket = 3,
+            Reflect = 4,
+        }
+
+        [Flags]
+        public enum Flag : ulong
+        {
+            Sniff = 0x0001,
+            Drop = 0x0002,
+            RecvOnly = 0x0004,
+            ReadOnly = RecvOnly,
+            SendOnly = 0x0008,
+            WriteOnly = SendOnly,
+            NoInstall = 0x0010,
+            Fragments = 0x0020,
+        }
     }
 }
