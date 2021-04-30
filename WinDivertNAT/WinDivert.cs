@@ -45,8 +45,27 @@ namespace WinDivertNAT
             handle = WinDivertLow.WinDivertOpen(filter, layer, priority, flags);
         }
 
-        public void SetParam(WinDivertConstants.WinDivertParam param, ulong value) => WinDivertLow.WinDivertSetParam(handle, param, value);
-        public ulong GetParam(WinDivertConstants.WinDivertParam param) => WinDivertLow.WinDivertGetParam(handle, param);
+        public ulong QueueLength
+        {
+            get => WinDivertLow.WinDivertGetParam(handle, WinDivertConstants.WinDivertParam.QueueLength);
+            set => WinDivertLow.WinDivertSetParam(handle, WinDivertConstants.WinDivertParam.QueueLength, value);
+        }
+
+        public ulong QueueTime
+        {
+            get => WinDivertLow.WinDivertGetParam(handle, WinDivertConstants.WinDivertParam.QueueTime);
+            set => WinDivertLow.WinDivertSetParam(handle, WinDivertConstants.WinDivertParam.QueueTime, value);
+        }
+
+        public ulong QueueSize
+        {
+            get => WinDivertLow.WinDivertGetParam(handle, WinDivertConstants.WinDivertParam.QueueSize);
+            set => WinDivertLow.WinDivertSetParam(handle, WinDivertConstants.WinDivertParam.QueueSize, value);
+        }
+
+        public ulong VersionMajor => WinDivertLow.WinDivertGetParam(handle, WinDivertConstants.WinDivertParam.VersionMajor);
+        public ulong VersionMinor => WinDivertLow.WinDivertGetParam(handle, WinDivertConstants.WinDivertParam.VersionMinor);
+
         public void Shutdown(WinDivertConstants.WinDivertShutdown how) => WinDivertLow.WinDivertShutdown(handle, how);
         public void Dispose() => handle.Dispose();
     }
