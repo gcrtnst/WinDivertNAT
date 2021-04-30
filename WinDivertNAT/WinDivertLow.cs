@@ -42,9 +42,36 @@ namespace WinDivertNAT
     {
         public static SafeWinDivertHandle WinDivertOpen(string filter, WinDivertConstants.WinDivertLayer layer, short priority, WinDivertConstants.WinDivertFlag flags)
         {
-            var handle = NativeMethods.WinDivertOpen(filter, layer, priority, flags);
-            if (handle == IntPtr.Zero || handle == (IntPtr)(-1)) throw new Win32Exception();
-            return new SafeWinDivertHandle(handle, true);
+            var hraw = NativeMethods.WinDivertOpen(filter, layer, priority, flags);
+            if (hraw == IntPtr.Zero || hraw == (IntPtr)(-1)) throw new Win32Exception();
+            return new SafeWinDivertHandle(hraw, true);
+        }
+
+        public static void WinDivertShutdown(SafeWinDivertHandle handle, WinDivertConstants.WinDivertShutdown how) => UseHandle(handle, (hraw) =>
+        {
+            var result = NativeMethods.WinDivertShutdown(hraw, how);
+            if (!result) throw new Win32Exception();
+        });
+
+        private static void UseHandle(SafeWinDivertHandle handle, Action<IntPtr> action)
+        {
+            if (handle is null)
+            {
+                action(IntPtr.Zero);
+                return;
+            }
+
+            var addref = false;
+            try
+            {
+                handle.DangerousAddRef(ref addref);
+                var hraw = handle.DangerousGetHandle();
+                action(hraw);
+            }
+            finally
+            {
+                if (addref) handle.DangerousRelease();
+            }
         }
     }
 

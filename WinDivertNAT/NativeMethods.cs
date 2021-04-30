@@ -43,6 +43,9 @@ namespace WinDivertNAT
         public static extern IntPtr WinDivertOpen([In] string filter, WinDivertConstants.WinDivertLayer layer, short priority, WinDivertConstants.WinDivertFlag flags);
 
         [DllImport("WinDivert.dll", ExactSpelling = true, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi, BestFitMapping = false, ThrowOnUnmappableChar = true, PreserveSig = true, SetLastError = true)]
+        public static extern bool WinDivertShutdown(IntPtr handle, WinDivertConstants.WinDivertShutdown how);
+
+        [DllImport("WinDivert.dll", ExactSpelling = true, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi, BestFitMapping = false, ThrowOnUnmappableChar = true, PreserveSig = true, SetLastError = true)]
         public static extern bool WinDivertClose(IntPtr handle);
     }
 
@@ -68,6 +71,13 @@ namespace WinDivertNAT
             WriteOnly = SendOnly,
             NoInstall = 0x0010,
             Fragments = 0x0020,
+        }
+
+        public enum WinDivertShutdown
+        {
+            Recv = 0x1,
+            Send = 0x2,
+            Both = 0x3,
         }
     }
 }
