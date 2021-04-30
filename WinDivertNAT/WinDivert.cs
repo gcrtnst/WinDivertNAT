@@ -32,9 +32,19 @@
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 
+using System;
+
 namespace WinDivertNAT
 {
-    internal class WinDivert
+    internal class WinDivert : IDisposable
     {
+        private readonly SafeWinDivertHandle handle;
+
+        public WinDivert(string filter, WinDivertConstants.WinDivertLayer layer, short priority, WinDivertConstants.WinDivertFlag flags)
+        {
+            handle = WinDivertLow.WinDivertOpen(filter, layer, priority, flags);
+        }
+
+        public void Dispose() => handle.Dispose();
     }
 }
