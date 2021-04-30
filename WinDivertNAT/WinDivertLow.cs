@@ -47,18 +47,30 @@ namespace WinDivertNAT
             return new SafeWinDivertHandle(hraw, true);
         }
 
+        public static ulong WinDivertGetParam(SafeWinDivertHandle handle, WinDivertConstants.WinDivertParam param) => UseHandle(handle, (hraw) =>
+        {
+            var result = NativeMethods.WinDivertGetParam(hraw, param, out var value);
+            if (!result) throw new Win32Exception();
+            return value;
+        });
+
         public static void WinDivertShutdown(SafeWinDivertHandle handle, WinDivertConstants.WinDivertShutdown how) => UseHandle(handle, (hraw) =>
         {
             var result = NativeMethods.WinDivertShutdown(hraw, how);
             if (!result) throw new Win32Exception();
         });
 
-        private static void UseHandle(SafeWinDivertHandle handle, Action<IntPtr> action)
+        private static void UseHandle(SafeWinDivertHandle handle, Action<IntPtr> action) => UseHandle<object?>(handle, (hraw) =>
+        {
+            action(hraw);
+            return null;
+        });
+
+        private static T UseHandle<T>(SafeWinDivertHandle handle, Func<IntPtr, T> func)
         {
             if (handle is null)
             {
-                action(IntPtr.Zero);
-                return;
+                return func(IntPtr.Zero);
             }
 
             var addref = false;
@@ -66,13 +78,14 @@ namespace WinDivertNAT
             {
                 handle.DangerousAddRef(ref addref);
                 var hraw = handle.DangerousGetHandle();
-                action(hraw);
+                return func(hraw);
             }
             finally
             {
                 if (addref) handle.DangerousRelease();
             }
         }
+
     }
 
     internal class SafeWinDivertHandle : SafeHandleZeroOrMinusOneIsInvalid

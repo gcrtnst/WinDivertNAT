@@ -45,6 +45,7 @@ namespace WinDivertNAT
             handle = WinDivertLow.WinDivertOpen(filter, layer, priority, flags);
         }
 
+        public ulong GetParam(WinDivertConstants.WinDivertParam param) => WinDivertLow.WinDivertGetParam(handle, param);
         public void Shutdown(WinDivertConstants.WinDivertShutdown how) => WinDivertLow.WinDivertShutdown(handle, how);
         public void Dispose() => handle.Dispose();
     }
