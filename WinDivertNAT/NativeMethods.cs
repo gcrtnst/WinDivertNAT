@@ -111,7 +111,7 @@ namespace WinDivertNAT
     }
 
     [StructLayout(LayoutKind.Explicit)]
-    internal struct WinDivertAddress
+    internal unsafe struct WinDivertAddress
     {
         [FieldOffset(0)] public long Timestamp;
         [FieldOffset(8)] public byte Layer;
@@ -122,6 +122,7 @@ namespace WinDivertNAT
         [FieldOffset(16)] public WinDivertDataFlow Flow;
         [FieldOffset(16)] public WinDivertDataSocket Socket;
         [FieldOffset(16)] public WinDivertDataReflect Reflect;
+        [FieldOffset(16)] private fixed byte reserved[64];
     }
 
     internal struct WinDivertDataNetwork
