@@ -109,4 +109,57 @@ namespace WinDivertNAT
             Both = 0x3,
         }
     }
+
+    [StructLayout(LayoutKind.Explicit)]
+    internal struct WinDivertAddress
+    {
+        [FieldOffset(0)] public long Timestamp;
+        [FieldOffset(8)] public byte Layer;
+        [FieldOffset(9)] public byte Event;
+        [FieldOffset(10)] public byte Flags;
+
+        [FieldOffset(16)] public WinDivertDataNetwork Netrowk;
+        [FieldOffset(16)] public WinDivertDataFlow Flow;
+        [FieldOffset(16)] public WinDivertDataSocket Socket;
+        [FieldOffset(16)] public WinDivertDataReflect Reflect;
+    }
+
+    internal struct WinDivertDataNetwork
+    {
+        public uint IfIdx;
+        public uint SubIfIdx;
+    }
+
+    internal unsafe struct WinDivertDataFlow
+    {
+        public ulong EndpointId;
+        public ulong ParentEndpointId;
+        public uint ProcessId;
+        public fixed uint LocalAddr[4];
+        public fixed uint RemoteAddr[4];
+        public ushort LocalPort;
+        public ushort RemotePort;
+        public byte Protocol;
+    }
+
+    internal unsafe struct WinDivertDataSocket
+    {
+        public ulong EndpointId;
+        public ulong ParentEndpointId;
+        public uint ProcessId;
+        public fixed uint LocalAddr[4];
+        public fixed uint RemoteAddr[4];
+        public ushort LocalPort;
+        public ushort RemotePort;
+        public byte Protocol;
+    }
+
+    internal struct WinDivertDataReflect
+    {
+        public long Timestamp;
+        public uint ProcessId;
+        public WinDivertConstants.WinDivertLayer Layer;
+        public ulong Flags;
+        public short Priority;
+    }
 }
