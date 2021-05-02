@@ -47,6 +47,9 @@ namespace WinDivertNAT
         public static extern unsafe bool WinDivertRecvEx(IntPtr handle, byte[]? packet, uint packetLen, uint* recvLen, ulong flags, WinDivertAddress[]? addr, uint* addrLen, NativeOverlapped* overlapped);
 
         [DllImport("WinDivert.dll", ExactSpelling = true, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi, BestFitMapping = false, ThrowOnUnmappableChar = true, PreserveSig = true, SetLastError = true)]
+        public static extern unsafe bool WinDivertSendEx(IntPtr handle, byte[] packet, uint packetLen, uint* sendLen, ulong flags, WinDivertAddress[] addr, uint addrLen, NativeOverlapped* overlapped);
+
+        [DllImport("WinDivert.dll", ExactSpelling = true, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi, BestFitMapping = false, ThrowOnUnmappableChar = true, PreserveSig = true, SetLastError = true)]
         public static extern bool WinDivertSetParam(IntPtr handle, WinDivertConstants.WinDivertParam param, ulong value);
 
         [DllImport("WinDivert.dll", ExactSpelling = true, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi, BestFitMapping = false, ThrowOnUnmappableChar = true, PreserveSig = true, SetLastError = true)]

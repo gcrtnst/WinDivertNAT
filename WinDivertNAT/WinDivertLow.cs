@@ -69,6 +69,18 @@ namespace WinDivertNAT
             });
         }
 
+        public static unsafe void WinDivertSendEx(SafeWinDivertHandle handle, byte[] packet, out uint sendLen, WinDivertAddress[] addr)
+        {
+            sendLen = UseHandle(handle, (hraw) =>
+            {
+                var fixedSendLen = (uint)0;
+
+                var result = NativeMethods.WinDivertSendEx(hraw, packet, (uint)packet.Length, &fixedSendLen, 0, addr, (uint)(addr.Length * sizeof(WinDivertAddress)), null);
+                if (!result) throw new Win32Exception();
+                return fixedSendLen;
+            });
+        }
+
         public static void WinDivertSetParam(SafeWinDivertHandle handle, WinDivertConstants.WinDivertParam param, ulong value) => UseHandle(handle, (hraw) =>
         {
             var result = NativeMethods.WinDivertSetParam(hraw, param, value);
