@@ -65,7 +65,7 @@ namespace WinDivertNAT
 
                 var result = NativeMethods.WinDivertRecvEx(hraw, packet, packetLen, &fixedRecvLen, 0, addr, pAddrLen, null);
                 if (!result) throw new Win32Exception();
-                return (fixedRecvLen, fixedAddrLen);
+                return (fixedRecvLen, (uint)(fixedAddrLen / sizeof(WinDivertAddress)));
             });
         }
 
