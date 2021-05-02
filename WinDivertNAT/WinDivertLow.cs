@@ -63,7 +63,11 @@ namespace WinDivertNAT
                     pAddrLen = &fixedAddrLen;
                 }
 
-                var result = NativeMethods.WinDivertRecvEx(hraw, packet, packetLen, &fixedRecvLen, 0, addr, pAddrLen, null);
+                var result = false;
+                fixed (void* pPacket = packet) fixed (WinDivertAddress* pAddr = addr)
+                {
+                    result = NativeMethods.WinDivertRecvEx(hraw, pPacket, packetLen, &fixedRecvLen, 0, pAddr, pAddrLen, null);
+                }
                 if (!result) throw new Win32Exception();
                 return (fixedRecvLen, (uint)(fixedAddrLen / sizeof(WinDivertAddress)));
             });
@@ -75,7 +79,11 @@ namespace WinDivertNAT
             {
                 var fixedSendLen = (uint)0;
 
-                var result = NativeMethods.WinDivertSendEx(hraw, packet, (uint)packet.Length, &fixedSendLen, 0, addr, (uint)(addr.Length * sizeof(WinDivertAddress)), null);
+                var result = false;
+                fixed (void* pPacket = packet) fixed (WinDivertAddress* pAddr = addr)
+                {
+                    result = NativeMethods.WinDivertSendEx(hraw, pPacket, (uint)packet.Length, &fixedSendLen, 0, pAddr, (uint)(addr.Length * sizeof(WinDivertAddress)), null);
+                }
                 if (!result) throw new Win32Exception();
                 return fixedSendLen;
             });
