@@ -132,6 +132,7 @@ namespace WinDivertNAT
         [FieldOffset(16)] private fixed byte reserved[64];
     }
 
+    [StructLayout(LayoutKind.Sequential)]
     internal struct WinDivertDataNetwork
     {
 #pragma warning disable CS0649
@@ -140,6 +141,7 @@ namespace WinDivertNAT
 #pragma warning restore CS0649
     }
 
+    [StructLayout(LayoutKind.Sequential)]
     internal unsafe struct WinDivertDataFlow
     {
 #pragma warning disable CS0649
@@ -154,6 +156,7 @@ namespace WinDivertNAT
 #pragma warning restore CS0649
     }
 
+    [StructLayout(LayoutKind.Sequential)]
     internal unsafe struct WinDivertDataSocket
     {
 #pragma warning disable CS0649
@@ -168,6 +171,7 @@ namespace WinDivertNAT
 #pragma warning restore CS0649
     }
 
+    [StructLayout(LayoutKind.Sequential)]
     internal struct WinDivertDataReflect
     {
 #pragma warning disable CS0649
