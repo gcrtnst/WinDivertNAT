@@ -59,7 +59,7 @@ namespace WinDivertNAT
                 var pAddrLen = (uint*)null;
                 if (addr is object)
                 {
-                    fixedAddrLen = (uint)addr.Length;
+                    fixedAddrLen = (uint)(addr.Length * sizeof(WinDivertAddress));
                     pAddrLen = &fixedAddrLen;
                 }
 
