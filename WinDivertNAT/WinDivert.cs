@@ -45,6 +45,8 @@ namespace WinDivertNAT
             handle = WinDivertLow.WinDivertOpen(filter, layer, priority, flags);
         }
 
+        public void RecvEx(byte[]? packet, out uint recvLen, WinDivertAddress[]? addr, out uint addrLen) => WinDivertLow.WinDivertRecvEx(handle, packet, out recvLen, addr, out addrLen);
+
         public ulong QueueLength
         {
             get => WinDivertLow.WinDivertGetParam(handle, WinDivertConstants.WinDivertParam.QueueLength);
