@@ -35,6 +35,7 @@
 using Microsoft.Win32.SafeHandles;
 using System;
 using System.ComponentModel;
+using System.Runtime.InteropServices;
 
 namespace WinDivertNAT
 {
@@ -51,68 +52,67 @@ namespace WinDivertNAT
         {
             var packetLen = (uint)0;
             if (packet is object) packetLen = (uint)packet.Length;
-
-            var (recvLen, addrLen) = UseHandle(handle, (hraw) =>
+            var recvLen = (uint)0;
+            var addrLen = (uint)0;
+            var pAddrLen = (uint*)null;
+            if (addr is object)
             {
-                var fixedRecvLen = (uint)0;
-                var fixedAddrLen = (uint)0;
-                var pAddrLen = (uint*)null;
-                if (addr is object)
-                {
-                    fixedAddrLen = (uint)(addr.Length * sizeof(WinDivertAddress));
-                    pAddrLen = &fixedAddrLen;
-                }
+                addrLen = (uint)(addr.Length * sizeof(WinDivertAddress));
+                pAddrLen = &addrLen;
+            }
 
+            using (var href = new SafeHandleReference(handle, (IntPtr)(-1)))
+            {
                 var result = false;
                 fixed (void* pPacket = packet) fixed (WinDivertAddress* pAddr = addr)
                 {
-                    result = NativeMethods.WinDivertRecvEx(hraw, pPacket, packetLen, &fixedRecvLen, 0, pAddr, pAddrLen, null);
+                    result = NativeMethods.WinDivertRecvEx(href.RawHandle, pPacket, packetLen, &recvLen, 0, pAddr, pAddrLen, null);
                 }
                 if (!result) throw new Win32Exception();
-                return (fixedRecvLen, (uint)(fixedAddrLen / sizeof(WinDivertAddress)));
-            });
+            }
 
             var recv = (byte[]?)null;
             if (packet is object) recv = packet[0..(int)recvLen];
             var aret = (WinDivertAddress[]?)null;
-            if (addr is object) aret = addr[0..(int)addrLen];
+            if (addr is object) aret = addr[0..(int)(addrLen / sizeof(WinDivertAddress))];
             return (recv, aret);
         }
 
         public static unsafe uint WinDivertSendEx(SafeWinDivertHandle handle, byte[] packet, WinDivertAddress[] addr)
         {
-            return UseHandle(handle, (hraw) =>
-            {
-                var fixedSendLen = (uint)0;
+            using var href = new SafeHandleReference(handle, (IntPtr)(-1));
+            var sendLen = (uint)0;
+            var result = false;
 
-                var result = false;
-                fixed (void* pPacket = packet) fixed (WinDivertAddress* pAddr = addr)
-                {
-                    result = NativeMethods.WinDivertSendEx(hraw, pPacket, (uint)packet.Length, &fixedSendLen, 0, pAddr, (uint)(addr.Length * sizeof(WinDivertAddress)), null);
-                }
-                if (!result) throw new Win32Exception();
-                return fixedSendLen;
-            });
+            fixed (void* pPacket = packet) fixed (WinDivertAddress* pAddr = addr)
+            {
+                result = NativeMethods.WinDivertSendEx(href.RawHandle, pPacket, (uint)packet.Length, &sendLen, 0, pAddr, (uint)(addr.Length * sizeof(WinDivertAddress)), null);
+            }
+            if (!result) throw new Win32Exception();
+            return sendLen;
         }
 
-        public static void WinDivertSetParam(SafeWinDivertHandle handle, WinDivertConstants.WinDivertParam param, ulong value) => UseHandle(handle, (hraw) =>
+        public static void WinDivertSetParam(SafeWinDivertHandle handle, WinDivertConstants.WinDivertParam param, ulong value)
         {
-            var result = NativeMethods.WinDivertSetParam(hraw, param, value);
+            using var href = new SafeHandleReference(handle, (IntPtr)(-1));
+            var result = NativeMethods.WinDivertSetParam(href.RawHandle, param, value);
             if (!result) throw new Win32Exception();
-        });
+        }
 
-        public static ulong WinDivertGetParam(SafeWinDivertHandle handle, WinDivertConstants.WinDivertParam param) => UseHandle(handle, (hraw) =>
+        public static ulong WinDivertGetParam(SafeWinDivertHandle handle, WinDivertConstants.WinDivertParam param)
         {
-            var result = NativeMethods.WinDivertGetParam(hraw, param, out var value);
+            using var href = new SafeHandleReference(handle, (IntPtr)(-1));
+            var result = NativeMethods.WinDivertGetParam(href.RawHandle, param, out var value);
             if (!result) throw new Win32Exception();
             return value;
-        });
+        }
 
-        public static void WinDivertShutdown(SafeWinDivertHandle handle, WinDivertConstants.WinDivertShutdown how) => UseHandle(handle, (hraw) =>
+        public static void WinDivertShutdown(SafeWinDivertHandle handle, WinDivertConstants.WinDivertShutdown how)
         {
-            var result = NativeMethods.WinDivertShutdown(hraw, how);
+            using var href = new SafeHandleReference(handle, (IntPtr)(-1));
+            var result = NativeMethods.WinDivertShutdown(href.RawHandle, how);
             if (!result) throw new Win32Exception();
-        });
+        }
 
         public static unsafe IPv6Addr WinDivertHelperNtohIPv6Address(IPv6Addr addr)
         {
@@ -127,32 +127,6 @@ namespace WinDivertNAT
             NativeMethods.WinDivertHelperHtonIPv6Address(&addr, &outAddr);
             return outAddr;
         }
-
-        private static void UseHandle(SafeWinDivertHandle handle, Action<IntPtr> action) => UseHandle<object?>(handle, (hraw) =>
-        {
-            action(hraw);
-            return null;
-        });
-
-        private static T UseHandle<T>(SafeWinDivertHandle handle, Func<IntPtr, T> func)
-        {
-            if (handle is null)
-            {
-                return func(IntPtr.Zero);
-            }
-
-            var addref = false;
-            try
-            {
-                handle.DangerousAddRef(ref addref);
-                var hraw = handle.DangerousGetHandle();
-                return func(hraw);
-            }
-            finally
-            {
-                if (addref) handle.DangerousRelease();
-            }
-        }
     }
 
     internal class SafeWinDivertHandle : SafeHandleZeroOrMinusOneIsInvalid
@@ -163,5 +137,41 @@ namespace WinDivertNAT
         }
 
         protected override bool ReleaseHandle() => NativeMethods.WinDivertClose(handle);
+    }
+
+    internal class SafeHandleReference : IDisposable
+    {
+        public readonly IntPtr RawHandle;
+        private readonly SafeHandle? handle;
+        private bool reference;
+
+        public SafeHandleReference(SafeHandle? handle, IntPtr invalid)
+        {
+            this.handle = handle;
+            if (handle is null || handle.IsInvalid || handle.IsClosed)
+            {
+                RawHandle = invalid;
+                return;
+            }
+            handle.DangerousAddRef(ref reference);
+            RawHandle = handle.DangerousGetHandle();
+        }
+
+        public void Dispose()
+        {
+            Release();
+            GC.SuppressFinalize(this);
+        }
+
+        ~SafeHandleReference() => Release();
+
+        private void Release()
+        {
+            if (reference)
+            {
+                handle?.DangerousRelease();
+                reference = false;
+            }
+        }
     }
 }
