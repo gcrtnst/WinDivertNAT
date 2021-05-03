@@ -79,9 +79,9 @@ namespace WinDivertNAT
             return (recv, aret);
         }
 
-        public static unsafe void WinDivertSendEx(SafeWinDivertHandle handle, byte[] packet, out uint sendLen, WinDivertAddress[] addr)
+        public static unsafe uint WinDivertSendEx(SafeWinDivertHandle handle, byte[] packet, WinDivertAddress[] addr)
         {
-            sendLen = UseHandle(handle, (hraw) =>
+            return UseHandle(handle, (hraw) =>
             {
                 var fixedSendLen = (uint)0;
 

@@ -49,7 +49,7 @@ namespace WinDivertNAT
         }
 
         public (byte[]? recv, WinDivertAddress[]? addr) RecvEx(byte[]? packet, WinDivertAddress[]? addr) => WinDivertLow.WinDivertRecvEx(handle, packet, addr);
-        public void SendEx(byte[] packet, out uint sendLen, WinDivertAddress[] addr) => WinDivertLow.WinDivertSendEx(handle, packet, out sendLen, addr);
+        public uint SendEx(byte[] packet, WinDivertAddress[] addr) => WinDivertLow.WinDivertSendEx(handle, packet, addr);
 
         public ulong QueueLength
         {
