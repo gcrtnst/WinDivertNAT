@@ -135,16 +135,13 @@ namespace WinDivertNAT
     [StructLayout(LayoutKind.Sequential)]
     internal struct WinDivertDataNetwork
     {
-#pragma warning disable CS0649
         public uint IfIdx;
         public uint SubIfIdx;
-#pragma warning restore CS0649
     }
 
     [StructLayout(LayoutKind.Sequential)]
     internal unsafe struct WinDivertDataFlow
     {
-#pragma warning disable CS0649
         public ulong EndpointId;
         public ulong ParentEndpointId;
         public uint ProcessId;
@@ -153,13 +150,11 @@ namespace WinDivertNAT
         public ushort LocalPort;
         public ushort RemotePort;
         public byte Protocol;
-#pragma warning restore CS0649
     }
 
     [StructLayout(LayoutKind.Sequential)]
     internal unsafe struct WinDivertDataSocket
     {
-#pragma warning disable CS0649
         public ulong EndpointId;
         public ulong ParentEndpointId;
         public uint ProcessId;
@@ -168,18 +163,15 @@ namespace WinDivertNAT
         public ushort LocalPort;
         public ushort RemotePort;
         public byte Protocol;
-#pragma warning restore CS0649
     }
 
     [StructLayout(LayoutKind.Sequential)]
     internal struct WinDivertDataReflect
     {
-#pragma warning disable CS0649
         public long Timestamp;
         public uint ProcessId;
         public WinDivertConstants.WinDivertLayer Layer;
         public ulong Flags;
         public short Priority;
-#pragma warning restore CS0649
     }
 }
