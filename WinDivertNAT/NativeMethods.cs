@@ -125,7 +125,7 @@ namespace WinDivertNAT
         [FieldOffset(9)] public byte Event;
         [FieldOffset(10)] public byte Flags;
 
-        [FieldOffset(16)] public WinDivertDataNetwork Netrowk;
+        [FieldOffset(16)] public WinDivertDataNetwork Network;
         [FieldOffset(16)] public WinDivertDataFlow Flow;
         [FieldOffset(16)] public WinDivertDataSocket Socket;
         [FieldOffset(16)] public WinDivertDataReflect Reflect;
