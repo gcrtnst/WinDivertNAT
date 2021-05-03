@@ -33,9 +33,9 @@
  */
 
 using System;
+using System.Buffers;
 using System.Collections;
 using System.Collections.Generic;
-using System.Runtime.InteropServices;
 
 namespace WinDivertNAT
 {
@@ -48,8 +48,8 @@ namespace WinDivertNAT
             handle = WinDivertLow.WinDivertOpen(filter, layer, priority, flags);
         }
 
-        public (byte[]? recv, WinDivertAddress[]? addr) RecvEx(byte[]? packet, WinDivertAddress[]? addr) => WinDivertLow.WinDivertRecvEx(handle, packet, addr);
-        public uint SendEx(byte[] packet, WinDivertAddress[] addr) => WinDivertLow.WinDivertSendEx(handle, packet, addr);
+        public (uint recvLen, uint addrLen) RecvEx(Span<byte> packet, Span<WinDivertAddress> abuf) => WinDivertLow.WinDivertRecvEx(handle, packet, abuf);
+        public uint SendEx(Span<byte> packet, Span<WinDivertAddress> addr) => WinDivertLow.WinDivertSendEx(handle, packet, addr);
 
         public ulong QueueLength
         {
@@ -90,9 +90,9 @@ namespace WinDivertNAT
 
     internal struct PacketParser : IEnumerable<ParseResult>
     {
-        private readonly byte[] packet;
+        private readonly ReadOnlyMemory<byte> packet;
 
-        public PacketParser(byte[] packet)
+        public PacketParser(ReadOnlyMemory<byte> packet)
         {
             this.packet = packet;
         }
@@ -103,8 +103,8 @@ namespace WinDivertNAT
 
     internal unsafe class PacketEnumerator : IEnumerator<ParseResult>
     {
-        private readonly GCHandle gch;
-        private readonly byte[] packet;
+        private readonly MemoryHandle hmem;
+        private readonly ReadOnlyMemory<byte> packet;
         private readonly byte* pPacket0;
         private byte* pPacket;
         private uint packetLen;
@@ -113,11 +113,11 @@ namespace WinDivertNAT
         public ParseResult Current => current;
         object IEnumerator.Current => current;
 
-        public PacketEnumerator(byte[] packet)
+        public PacketEnumerator(ReadOnlyMemory<byte> packet)
         {
-            gch = GCHandle.Alloc(packet, GCHandleType.Pinned);
+            hmem = packet.Pin();
             this.packet = packet;
-            pPacket0 = (byte*)gch.AddrOfPinnedObject();
+            pPacket0 = (byte*)hmem.Pointer;
             Reset();
         }
 
@@ -166,16 +166,16 @@ namespace WinDivertNAT
 
         public void Dispose()
         {
-            gch.Free();
+            hmem.Dispose();
             GC.SuppressFinalize(this);
         }
 
-        ~PacketEnumerator() => gch.Free();
+        ~PacketEnumerator() => hmem.Dispose();
     }
 
     internal unsafe struct ParseResult
     {
-        public byte[] Packet;
+        public ReadOnlyMemory<byte> Packet;
         public WinDivertIPv4Hdr* IPv4Hdr;
         public WinDivertIPv6Hdr* IPv6Hdr;
         public byte Protocol;
@@ -183,6 +183,6 @@ namespace WinDivertNAT
         public WinDivertICMPv6Hdr* ICMPv6Hdr;
         public WinDivertTCPHdr* TCPHdr;
         public WinDivertUDPHdr* UDPHdr;
-        public byte[]? Data;
+        public ReadOnlyMemory<byte> Data;
     }
 }

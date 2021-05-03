@@ -48,14 +48,14 @@ namespace WinDivertNAT
             return new SafeWinDivertHandle(hraw, true);
         }
 
-        public static unsafe (byte[]? recv, WinDivertAddress[]? addr) WinDivertRecvEx(SafeWinDivertHandle handle, byte[]? packet, WinDivertAddress[]? addr)
+        public static unsafe (uint recvLen, uint addrLen) WinDivertRecvEx(SafeWinDivertHandle handle, Span<byte> packet, Span<WinDivertAddress> addr)
         {
             var packetLen = (uint)0;
-            if (packet is object) packetLen = (uint)packet.Length;
+            if (!packet.IsEmpty) packetLen = (uint)packet.Length;
             var recvLen = (uint)0;
             var addrLen = (uint)0;
             var pAddrLen = (uint*)null;
-            if (addr is object)
+            if (!addr.IsEmpty)
             {
                 addrLen = (uint)(addr.Length * sizeof(WinDivertAddress));
                 pAddrLen = &addrLen;
@@ -71,14 +71,11 @@ namespace WinDivertNAT
                 if (!result) throw new Win32Exception();
             }
 
-            var recv = (byte[]?)null;
-            if (packet is object) recv = packet[0..(int)recvLen];
-            var aret = (WinDivertAddress[]?)null;
-            if (addr is object) aret = addr[0..(int)(addrLen / sizeof(WinDivertAddress))];
-            return (recv, aret);
+            addrLen = (uint)(addrLen / sizeof(WinDivertAddress));
+            return (recvLen, addrLen);
         }
 
-        public static unsafe uint WinDivertSendEx(SafeWinDivertHandle handle, byte[] packet, WinDivertAddress[] addr)
+        public static unsafe uint WinDivertSendEx(SafeWinDivertHandle handle, ReadOnlySpan<byte> packet, ReadOnlySpan<WinDivertAddress> addr)
         {
             using var href = new SafeHandleReference(handle, (IntPtr)(-1));
             var sendLen = (uint)0;
