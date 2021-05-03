@@ -60,6 +60,9 @@ namespace WinDivertNAT
 
         [DllImport("WinDivert.dll", ExactSpelling = true, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi, BestFitMapping = false, ThrowOnUnmappableChar = true, PreserveSig = true, SetLastError = true)]
         public static extern bool WinDivertClose(IntPtr handle);
+
+        [DllImport("WinDivert.dll", ExactSpelling = true, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi, BestFitMapping = false, ThrowOnUnmappableChar = true, PreserveSig = true, SetLastError = true)]
+        public static extern unsafe bool WinDivertHelperParsePacket(void* packet, uint packetLen, WinDivertIPv4Hdr** ipv4Hdr, WinDivertIPv6Hdr** ipv6Hdr, byte* protocol, WinDivertICMPv4Hdr** icmpv4Hdr, WinDivertICMPv6Hdr** icmpv6Hdr, WinDivertTCPHdr** tcpHdr, WinDivertUDPHdr udpHdr, void** data, uint* dataLen, void** next, uint* nextLen);
     }
 
     internal static class WinDivertConstants
@@ -145,8 +148,8 @@ namespace WinDivertNAT
         public ulong EndpointId;
         public ulong ParentEndpointId;
         public uint ProcessId;
-        public fixed uint LocalAddr[4];
-        public fixed uint RemoteAddr[4];
+        public IPv6Addr LocalAddr;
+        public IPv6Addr RemoteAddr;
         public ushort LocalPort;
         public ushort RemotePort;
         public byte Protocol;
@@ -158,8 +161,8 @@ namespace WinDivertNAT
         public ulong EndpointId;
         public ulong ParentEndpointId;
         public uint ProcessId;
-        public fixed uint LocalAddr[4];
-        public fixed uint RemoteAddr[4];
+        public IPv6Addr LocalAddr;
+        public IPv6Addr RemoteAddr;
         public ushort LocalPort;
         public ushort RemotePort;
         public byte Protocol;
@@ -173,5 +176,83 @@ namespace WinDivertNAT
         public WinDivertConstants.WinDivertLayer Layer;
         public ulong Flags;
         public short Priority;
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
+    internal struct WinDivertIPv4Hdr
+    {
+        private readonly byte versionIHL;
+        public byte TOS;
+        public ushort Length;
+        public ushort Id;
+        private readonly ushort fragOff0;
+        public byte TTL;
+        public byte Protocol;
+        public ushort Checksum;
+        public IPv4Addr SrcAddr;
+        public IPv4Addr DstAddr;
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
+    internal struct WinDivertIPv6Hdr
+    {
+        private readonly uint version0;
+        public ushort Length;
+        public byte NextHdr;
+        public byte HopLimit;
+        public IPv6Addr SrcAddr;
+        public IPv6Addr DstAddr;
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
+    internal struct WinDivertICMPv4Hdr
+    {
+        public byte Type;
+        public byte Code;
+        public ushort Checksum;
+        public uint Body;
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
+    internal struct WinDivertICMPv6Hdr
+    {
+        public byte Type;
+        public byte Code;
+        public ushort Checksum;
+        public uint Body;
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
+    internal struct WinDivertTCPHdr
+    {
+        public ushort SrcPort;
+        public ushort DstPort;
+        public uint SeqNum;
+        public uint AckNum;
+        private readonly ushort hdrLength0;
+        public ushort Window;
+        public ushort Checksum;
+        public ushort UrgPtr;
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
+    internal struct WinDivertUDPHdr
+    {
+        public ushort SrcPort;
+        public ushort DstPort;
+        public ushort Length;
+        public ushort Checksum;
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
+    internal struct IPv4Addr
+    {
+        internal uint Addr;
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
+    internal unsafe struct IPv6Addr
+    {
+        internal fixed uint Addr[4];
     }
 }
