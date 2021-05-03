@@ -108,6 +108,20 @@ namespace WinDivertNAT
             if (!result) throw new Win32Exception();
         });
 
+        public static unsafe IPv6Addr WinDivertHelperNtohIPv6Address(IPv6Addr addr)
+        {
+            var outAddr = new IPv6Addr();
+            NativeMethods.WinDivertHelperNtohIPv6Address(&addr, &outAddr);
+            return outAddr;
+        }
+
+        public static unsafe IPv6Addr WinDivertHelperHtonIPv6Address(IPv6Addr addr)
+        {
+            var outAddr = new IPv6Addr();
+            NativeMethods.WinDivertHelperHtonIPv6Address(&addr, &outAddr);
+            return outAddr;
+        }
+
         private static void UseHandle(SafeWinDivertHandle handle, Action<IntPtr> action) => UseHandle<object?>(handle, (hraw) =>
         {
             action(hraw);
@@ -133,7 +147,6 @@ namespace WinDivertNAT
                 if (addref) handle.DangerousRelease();
             }
         }
-
     }
 
     internal class SafeWinDivertHandle : SafeHandleZeroOrMinusOneIsInvalid

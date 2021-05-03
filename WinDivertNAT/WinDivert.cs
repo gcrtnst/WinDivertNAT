@@ -78,6 +78,16 @@ namespace WinDivertNAT
         public void Dispose() => handle.Dispose();
     }
 
+    internal static class WinDivertHelper
+    {
+        public static ushort Ntoh(ushort x) => NativeMethods.WinDivertHelperNtohs(x);
+        public static uint Ntoh(uint x) => NativeMethods.WinDivertHelperNtohl(x);
+        public static ulong Ntoh(ulong x) => NativeMethods.WinDivertHelperNtohll(x);
+        public static ushort Hton(ushort x) => NativeMethods.WinDivertHelperHtons(x);
+        public static uint Hton(uint x) => NativeMethods.WinDivertHelperHtonl(x);
+        public static ulong Hton(ulong x) => NativeMethods.WinDivertHelperHtonll(x);
+    }
+
     internal struct PacketParser : IEnumerable<ParseResult>
     {
         private readonly byte[] packet;
