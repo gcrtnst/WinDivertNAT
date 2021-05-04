@@ -68,6 +68,9 @@ namespace WinDivertNAT
         public static extern unsafe bool WinDivertHelperFormatIPv4Address(IPv4Addr addr, byte* buffer, uint buflen);
 
         [DllImport("WinDivert.dll", ExactSpelling = true, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi, BestFitMapping = false, ThrowOnUnmappableChar = true, PreserveSig = true, SetLastError = true)]
+        public static extern unsafe bool WinDivertHelperFormatIPv6Address(IPv6Addr addr, byte* buffer, uint buflen);
+
+        [DllImport("WinDivert.dll", ExactSpelling = true, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi, BestFitMapping = false, ThrowOnUnmappableChar = true, PreserveSig = true, SetLastError = true)]
         public static extern ushort WinDivertHelperNtohs(ushort x);
 
         [DllImport("WinDivert.dll", ExactSpelling = true, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi, BestFitMapping = false, ThrowOnUnmappableChar = true, PreserveSig = true, SetLastError = true)]

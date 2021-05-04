@@ -125,6 +125,19 @@ namespace WinDivertNAT
             return Encoding.ASCII.GetString(buffer[0..strlen]);
         }
 
+        public static unsafe string WinDivertHelperFormatIPv6Address(IPv6Addr addr)
+        {
+            addr = WinDivertHelperNtohIPv6Address(addr);
+
+            var buffer = (Span<byte>)stackalloc byte[64];
+            var result = false;
+            fixed (byte* pBuffer = buffer) result = NativeMethods.WinDivertHelperFormatIPv6Address(addr, pBuffer, (uint)buffer.Length);
+            if (!result) throw new Win32Exception();
+
+            var strlen = buffer.IndexOf((byte)0);
+            return Encoding.ASCII.GetString(buffer[0..strlen]);
+        }
+
         public static unsafe IPv6Addr WinDivertHelperNtohIPv6Address(IPv6Addr addr)
         {
             var outAddr = new IPv6Addr();
