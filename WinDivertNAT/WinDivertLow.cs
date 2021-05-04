@@ -44,7 +44,14 @@ namespace WinDivertNAT
     {
         public static SafeWinDivertHandle WinDivertOpen(string filter, WinDivertConstants.WinDivertLayer layer, short priority, WinDivertConstants.WinDivertFlag flags)
         {
-            var hraw = NativeMethods.WinDivertOpen(filter, layer, priority, flags);
+            var fobj = WinDivertHelperCompileFilter(filter, layer);
+            return WinDivertOpen(fobj.Span, layer, priority, flags);
+        }
+
+        public static unsafe SafeWinDivertHandle WinDivertOpen(ReadOnlySpan<byte> filter, WinDivertConstants.WinDivertLayer layer, short priority, WinDivertConstants.WinDivertFlag flags)
+        {
+            var hraw = (IntPtr)(-1);
+            fixed (byte* pFilter = filter) hraw = NativeMethods.WinDivertOpen(pFilter, layer, priority, flags);
             if (hraw == IntPtr.Zero || hraw == (IntPtr)(-1)) throw new Win32Exception();
             return new SafeWinDivertHandle(hraw, true);
         }

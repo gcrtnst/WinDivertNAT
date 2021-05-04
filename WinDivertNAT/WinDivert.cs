@@ -48,6 +48,11 @@ namespace WinDivertNAT
             handle = WinDivertLow.WinDivertOpen(filter, layer, priority, flags);
         }
 
+        public WinDivert(ReadOnlySpan<byte> filter, WinDivertConstants.WinDivertLayer layer, short priority, WinDivertConstants.WinDivertFlag flags)
+        {
+            handle = WinDivertLow.WinDivertOpen(filter, layer, priority, flags);
+        }
+
         public (uint recvLen, uint addrLen) RecvEx(Span<byte> packet, Span<WinDivertAddress> abuf) => WinDivertLow.WinDivertRecvEx(handle, packet, abuf);
         public uint SendEx(ReadOnlySpan<byte> packet, ReadOnlySpan<WinDivertAddress> addr) => WinDivertLow.WinDivertSendEx(handle, packet, addr);
 
