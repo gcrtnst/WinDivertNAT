@@ -88,21 +88,21 @@ namespace WinDivertNAT
         public static ulong Hton(ulong x) => NativeMethods.WinDivertHelperHtonll(x);
     }
 
-    internal struct PacketParser : IEnumerable<ParseResult>
+    internal struct WinDivertPacketParser : IEnumerable<WinDivertParseResult>
     {
         private readonly ReadOnlyMemory<byte> packet;
 
-        public PacketParser(ReadOnlyMemory<byte> packet)
+        public WinDivertPacketParser(ReadOnlyMemory<byte> packet)
         {
             this.packet = packet;
         }
 
-        public PacketEnumerator GetEnumerator() => new(packet);
-        IEnumerator<ParseResult> IEnumerable<ParseResult>.GetEnumerator() => new PacketEnumerator(packet);
-        IEnumerator IEnumerable.GetEnumerator() => new PacketEnumerator(packet);
+        public WinDivertPacketEnumerator GetEnumerator() => new(packet);
+        IEnumerator<WinDivertParseResult> IEnumerable<WinDivertParseResult>.GetEnumerator() => new WinDivertPacketEnumerator(packet);
+        IEnumerator IEnumerable.GetEnumerator() => new WinDivertPacketEnumerator(packet);
     }
 
-    internal unsafe struct PacketEnumerator : IEnumerator<ParseResult>
+    internal unsafe struct WinDivertPacketEnumerator : IEnumerator<WinDivertParseResult>
     {
         private readonly MemoryHandle hmem;
         private readonly ReadOnlyMemory<byte> packet;
@@ -110,18 +110,18 @@ namespace WinDivertNAT
         private byte* pPacket;
         private uint packetLen;
 
-        private ParseResult current;
-        public ParseResult Current => current;
+        private WinDivertParseResult current;
+        public WinDivertParseResult Current => current;
         object IEnumerator.Current => current;
 
-        public PacketEnumerator(ReadOnlyMemory<byte> packet)
+        public WinDivertPacketEnumerator(ReadOnlyMemory<byte> packet)
         {
             hmem = packet.Pin();
             this.packet = packet;
             pPacket0 = (byte*)hmem.Pointer;
             pPacket = pPacket0;
             packetLen = (uint)packet.Length;
-            current = new ParseResult();
+            current = new WinDivertParseResult();
         }
 
         public bool MoveNext()
@@ -164,13 +164,13 @@ namespace WinDivertNAT
         {
             pPacket = pPacket0;
             packetLen = (uint)packet.Length;
-            current = new ParseResult();
+            current = new WinDivertParseResult();
         }
 
         public void Dispose() => hmem.Dispose();
     }
 
-    internal unsafe struct ParseResult
+    internal unsafe struct WinDivertParseResult
     {
         public ReadOnlyMemory<byte> Packet;
         public WinDivertIPv4Hdr* IPv4Hdr;
