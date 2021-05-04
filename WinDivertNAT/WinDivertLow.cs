@@ -112,6 +112,16 @@ namespace WinDivertNAT
             if (!result) throw new Win32Exception();
         }
 
+        public static unsafe IPv4Addr WinDivertHelperParseIPv4Address(string addrStr)
+        {
+            var addr = new IPv4Addr();
+            var result = NativeMethods.WinDivertHelperParseIPv4Address(addrStr, &addr.Addr);
+            if (!result) throw new Win32Exception();
+
+            addr.Addr = NativeMethods.WinDivertHelperHtonl(addr.Addr);
+            return addr;
+        }
+
         public static unsafe string WinDivertHelperFormatIPv4Address(IPv4Addr addr)
         {
             addr.Addr = NativeMethods.WinDivertHelperNtohl(addr.Addr);
