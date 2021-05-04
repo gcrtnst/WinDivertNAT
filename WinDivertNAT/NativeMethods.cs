@@ -65,10 +65,10 @@ namespace WinDivertNAT
         public static extern unsafe bool WinDivertHelperParsePacket(void* packet, uint packetLen, WinDivertIPv4Hdr** ipv4Hdr, WinDivertIPv6Hdr** ipv6Hdr, byte* protocol, WinDivertICMPv4Hdr** icmpv4Hdr, WinDivertICMPv6Hdr** icmpv6Hdr, WinDivertTCPHdr** tcpHdr, WinDivertUDPHdr** udpHdr, void** data, uint* dataLen, void** next, uint* nextLen);
 
         [DllImport("WinDivert.dll", ExactSpelling = true, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi, BestFitMapping = false, ThrowOnUnmappableChar = true, PreserveSig = true, SetLastError = true)]
-        public static extern unsafe bool WinDivertHelperFormatIPv4Address(IPv4Addr addr, byte* buffer, uint buflen);
+        public static extern unsafe bool WinDivertHelperFormatIPv4Address(uint addr, byte* buffer, uint buflen);
 
         [DllImport("WinDivert.dll", ExactSpelling = true, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi, BestFitMapping = false, ThrowOnUnmappableChar = true, PreserveSig = true, SetLastError = true)]
-        public static extern unsafe bool WinDivertHelperFormatIPv6Address(IPv6Addr addr, byte* buffer, uint buflen);
+        public static extern unsafe bool WinDivertHelperFormatIPv6Address(uint* addr, byte* buffer, uint buflen);
 
         [DllImport("WinDivert.dll", ExactSpelling = true, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi, BestFitMapping = false, ThrowOnUnmappableChar = true, PreserveSig = true, SetLastError = true)]
         public static extern ushort WinDivertHelperNtohs(ushort x);
@@ -89,10 +89,10 @@ namespace WinDivertNAT
         public static extern ulong WinDivertHelperHtonll(ulong x);
 
         [DllImport("WinDivert.dll", ExactSpelling = true, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi, BestFitMapping = false, ThrowOnUnmappableChar = true, PreserveSig = true, SetLastError = true)]
-        public static extern unsafe void WinDivertHelperNtohIPv6Address(IPv6Addr* inAddr, IPv6Addr* outAddr);
+        public static extern unsafe void WinDivertHelperNtohIPv6Address(uint* inAddr, uint* outAddr);
 
         [DllImport("WinDivert.dll", ExactSpelling = true, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi, BestFitMapping = false, ThrowOnUnmappableChar = true, PreserveSig = true, SetLastError = true)]
-        public static extern unsafe void WinDivertHelperHtonIPv6Address(IPv6Addr* inAddr, IPv6Addr* outAddr);
+        public static extern unsafe void WinDivertHelperHtonIPv6Address(uint* inAddr, uint* outAddr);
     }
 
     internal static class WinDivertConstants

@@ -118,7 +118,7 @@ namespace WinDivertNAT
 
             var buffer = (Span<byte>)stackalloc byte[32];
             var result = false;
-            fixed (byte* pBuffer = buffer) result = NativeMethods.WinDivertHelperFormatIPv4Address(addr, pBuffer, (uint)buffer.Length);
+            fixed (byte* pBuffer = buffer) result = NativeMethods.WinDivertHelperFormatIPv4Address(addr.Addr, pBuffer, (uint)buffer.Length);
             if (!result) throw new Win32Exception();
 
             var strlen = buffer.IndexOf((byte)0);
@@ -127,11 +127,11 @@ namespace WinDivertNAT
 
         public static unsafe string WinDivertHelperFormatIPv6Address(IPv6Addr addr)
         {
-            NativeMethods.WinDivertHelperNtohIPv6Address(&addr, &addr);
+            NativeMethods.WinDivertHelperNtohIPv6Address(addr.Addr, addr.Addr);
 
             var buffer = (Span<byte>)stackalloc byte[64];
             var result = false;
-            fixed (byte* pBuffer = buffer) result = NativeMethods.WinDivertHelperFormatIPv6Address(addr, pBuffer, (uint)buffer.Length);
+            fixed (byte* pBuffer = buffer) result = NativeMethods.WinDivertHelperFormatIPv6Address(addr.Addr, pBuffer, (uint)buffer.Length);
             if (!result) throw new Win32Exception();
 
             var strlen = buffer.IndexOf((byte)0);
