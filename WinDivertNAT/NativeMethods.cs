@@ -299,9 +299,9 @@ namespace WinDivertNAT
     [StructLayout(LayoutKind.Sequential)]
     internal struct IPv4Addr : IEquatable<IPv4Addr>
     {
-        internal uint Addr;
+        internal uint Raw;
 
-        public bool Equals(IPv4Addr addr) => Addr == addr.Addr;
+        public bool Equals(IPv4Addr addr) => Raw == addr.Raw;
 
         public override bool Equals(object? obj)
         {
@@ -318,14 +318,14 @@ namespace WinDivertNAT
     [StructLayout(LayoutKind.Sequential)]
     internal unsafe struct IPv6Addr : IEquatable<IPv6Addr>
     {
-        internal fixed uint Addr[4];
+        internal fixed uint Raw[4];
 
         public bool Equals(IPv6Addr addr)
         {
-            return Addr[0] == addr.Addr[0]
-                && Addr[1] == addr.Addr[1]
-                && Addr[2] == addr.Addr[2]
-                && Addr[3] == addr.Addr[3];
+            return Raw[0] == addr.Raw[0]
+                && Raw[1] == addr.Raw[1]
+                && Raw[2] == addr.Raw[2]
+                && Raw[3] == addr.Raw[3];
         }
 
         public override bool Equals(object? obj)

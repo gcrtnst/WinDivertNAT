@@ -122,30 +122,30 @@ namespace WinDivertNAT
         public static unsafe IPv4Addr WinDivertHelperParseIPv4Address(string addrStr)
         {
             var addr = new IPv4Addr();
-            var result = NativeMethods.WinDivertHelperParseIPv4Address(addrStr, &addr.Addr);
+            var result = NativeMethods.WinDivertHelperParseIPv4Address(addrStr, &addr.Raw);
             if (!result) throw new Win32Exception();
 
-            addr.Addr = NativeMethods.WinDivertHelperHtonl(addr.Addr);
+            addr.Raw = NativeMethods.WinDivertHelperHtonl(addr.Raw);
             return addr;
         }
 
         public static unsafe IPv6Addr WinDivertHelperParseIPv6Address(string addrStr)
         {
             var addr = new IPv6Addr();
-            var result = NativeMethods.WinDivertHelperParseIPv6Address(addrStr, addr.Addr);
+            var result = NativeMethods.WinDivertHelperParseIPv6Address(addrStr, addr.Raw);
             if (!result) throw new Win32Exception();
 
-            NativeMethods.WinDivertHelperHtonIPv6Address(addr.Addr, addr.Addr);
+            NativeMethods.WinDivertHelperHtonIPv6Address(addr.Raw, addr.Raw);
             return addr;
         }
 
         public static unsafe string WinDivertHelperFormatIPv4Address(IPv4Addr addr)
         {
-            addr.Addr = NativeMethods.WinDivertHelperNtohl(addr.Addr);
+            addr.Raw = NativeMethods.WinDivertHelperNtohl(addr.Raw);
 
             var buffer = (Span<byte>)stackalloc byte[32];
             var result = false;
-            fixed (byte* pBuffer = buffer) result = NativeMethods.WinDivertHelperFormatIPv4Address(addr.Addr, pBuffer, (uint)buffer.Length);
+            fixed (byte* pBuffer = buffer) result = NativeMethods.WinDivertHelperFormatIPv4Address(addr.Raw, pBuffer, (uint)buffer.Length);
             if (!result) throw new Win32Exception();
 
             var strlen = buffer.IndexOf((byte)0);
@@ -154,11 +154,11 @@ namespace WinDivertNAT
 
         public static unsafe string WinDivertHelperFormatIPv6Address(IPv6Addr addr)
         {
-            NativeMethods.WinDivertHelperNtohIPv6Address(addr.Addr, addr.Addr);
+            NativeMethods.WinDivertHelperNtohIPv6Address(addr.Raw, addr.Raw);
 
             var buffer = (Span<byte>)stackalloc byte[64];
             var result = false;
-            fixed (byte* pBuffer = buffer) result = NativeMethods.WinDivertHelperFormatIPv6Address(addr.Addr, pBuffer, (uint)buffer.Length);
+            fixed (byte* pBuffer = buffer) result = NativeMethods.WinDivertHelperFormatIPv6Address(addr.Raw, pBuffer, (uint)buffer.Length);
             if (!result) throw new Win32Exception();
 
             var strlen = buffer.IndexOf((byte)0);
