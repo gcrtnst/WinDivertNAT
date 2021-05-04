@@ -36,6 +36,7 @@ using Microsoft.Win32.SafeHandles;
 using System;
 using System.ComponentModel;
 using System.Runtime.InteropServices;
+using System.Text;
 
 namespace WinDivertNAT
 {
@@ -109,6 +110,19 @@ namespace WinDivertNAT
             using var href = new SafeHandleReference(handle, (IntPtr)(-1));
             var result = NativeMethods.WinDivertShutdown(href.RawHandle, how);
             if (!result) throw new Win32Exception();
+        }
+
+        public static unsafe string WinDivertHelperFormatIPv4Address(IPv4Addr addr)
+        {
+            addr.Addr = NativeMethods.WinDivertHelperNtohl(addr.Addr);
+
+            var buffer = (Span<byte>)stackalloc byte[32];
+            var result = false;
+            fixed (byte* pBuffer = buffer) result = NativeMethods.WinDivertHelperFormatIPv4Address(addr, pBuffer, (uint)buffer.Length);
+            if (!result) throw new Win32Exception();
+
+            var strlen = buffer.IndexOf((byte)0);
+            return Encoding.ASCII.GetString(buffer[0..strlen]);
         }
 
         public static unsafe IPv6Addr WinDivertHelperNtohIPv6Address(IPv6Addr addr)
