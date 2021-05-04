@@ -95,9 +95,9 @@ namespace WinDivertNAT
 
     internal struct WinDivertPacketParser : IEnumerable<WinDivertParseResult>
     {
-        private readonly ReadOnlyMemory<byte> packet;
+        private readonly Memory<byte> packet;
 
-        public WinDivertPacketParser(ReadOnlyMemory<byte> packet)
+        public WinDivertPacketParser(Memory<byte> packet)
         {
             this.packet = packet;
         }
@@ -110,7 +110,7 @@ namespace WinDivertNAT
     internal unsafe struct WinDivertPacketEnumerator : IEnumerator<WinDivertParseResult>
     {
         private readonly MemoryHandle hmem;
-        private readonly ReadOnlyMemory<byte> packet;
+        private readonly Memory<byte> packet;
         private readonly byte* pPacket0;
         private byte* pPacket;
         private uint packetLen;
@@ -119,7 +119,7 @@ namespace WinDivertNAT
         public WinDivertParseResult Current => current;
         object IEnumerator.Current => current;
 
-        public WinDivertPacketEnumerator(ReadOnlyMemory<byte> packet)
+        public WinDivertPacketEnumerator(Memory<byte> packet)
         {
             hmem = packet.Pin();
             this.packet = packet;
@@ -177,7 +177,7 @@ namespace WinDivertNAT
 
     internal unsafe struct WinDivertParseResult
     {
-        public ReadOnlyMemory<byte> Packet;
+        public Memory<byte> Packet;
         public WinDivertIPv4Hdr* IPv4Hdr;
         public WinDivertIPv6Hdr* IPv6Hdr;
         public byte Protocol;
@@ -185,6 +185,6 @@ namespace WinDivertNAT
         public WinDivertICMPv6Hdr* ICMPv6Hdr;
         public WinDivertTCPHdr* TCPHdr;
         public WinDivertUDPHdr* UDPHdr;
-        public ReadOnlyMemory<byte> Data;
+        public Memory<byte> Data;
     }
 }
