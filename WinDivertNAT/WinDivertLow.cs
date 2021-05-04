@@ -157,6 +157,16 @@ namespace WinDivertNAT
             var strlen = buffer.IndexOf((byte)0);
             return Encoding.ASCII.GetString(buffer[0..strlen]);
         }
+
+        public static unsafe void WinDivertHelperCalcChecksums(Span<byte> packet, ref WinDivertAddress addr, WinDivertConstants.WinDivertChecksumFlag flags)
+        {
+            var result = false;
+            fixed (void* pPacket = packet) fixed (WinDivertAddress* pAddr = &addr)
+            {
+                result = NativeMethods.WinDivertHelperCalcChecksums(pPacket, (uint)packet.Length, pAddr, flags);
+            }
+            if (!result) throw new Win32Exception();
+        }
     }
 
     internal class SafeWinDivertHandle : SafeHandleZeroOrMinusOneIsInvalid

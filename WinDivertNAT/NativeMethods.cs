@@ -77,6 +77,9 @@ namespace WinDivertNAT
         public static extern unsafe bool WinDivertHelperFormatIPv6Address(uint* addr, byte* buffer, uint buflen);
 
         [DllImport("WinDivert.dll", ExactSpelling = true, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi, BestFitMapping = false, ThrowOnUnmappableChar = true, PreserveSig = true, SetLastError = true)]
+        public static extern unsafe bool WinDivertHelperCalcChecksums(void* packet, uint packetLen, WinDivertAddress* addr, WinDivertConstants.WinDivertChecksumFlag flags);
+
+        [DllImport("WinDivert.dll", ExactSpelling = true, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi, BestFitMapping = false, ThrowOnUnmappableChar = true, PreserveSig = true, SetLastError = true)]
         public static extern ushort WinDivertHelperNtohs(ushort x);
 
         [DllImport("WinDivert.dll", ExactSpelling = true, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi, BestFitMapping = false, ThrowOnUnmappableChar = true, PreserveSig = true, SetLastError = true)]
@@ -153,6 +156,16 @@ namespace WinDivertNAT
             Recv = 0x1,
             Send = 0x2,
             Both = 0x3,
+        }
+
+        [Flags]
+        public enum WinDivertChecksumFlag : ulong
+        {
+            NoIPv4Checksum = 1,
+            NoICMPv4Checksum = 2,
+            NoICMPv6Checksum = 4,
+            NoTCPChecksum = 8,
+            NoUDPChecksum = 16,
         }
     }
 
