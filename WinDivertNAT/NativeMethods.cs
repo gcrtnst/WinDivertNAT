@@ -80,6 +80,9 @@ namespace WinDivertNAT
         public static extern unsafe bool WinDivertHelperCalcChecksums(void* packet, uint packetLen, WinDivertAddress* addr, WinDivertConstants.WinDivertChecksumFlag flags);
 
         [DllImport("WinDivert.dll", ExactSpelling = true, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi, BestFitMapping = false, ThrowOnUnmappableChar = true, PreserveSig = true, SetLastError = true)]
+        public static extern unsafe bool WinDivertHelperCompileFilter(string filter, WinDivertConstants.WinDivertLayer layer, byte* fobj, uint fobjLen, byte** errorStr, uint* errorPos);
+
+        [DllImport("WinDivert.dll", ExactSpelling = true, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi, BestFitMapping = false, ThrowOnUnmappableChar = true, PreserveSig = true, SetLastError = true)]
         public static extern ushort WinDivertHelperNtohs(ushort x);
 
         [DllImport("WinDivert.dll", ExactSpelling = true, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi, BestFitMapping = false, ThrowOnUnmappableChar = true, PreserveSig = true, SetLastError = true)]

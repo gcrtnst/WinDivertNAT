@@ -167,6 +167,23 @@ namespace WinDivertNAT
             }
             if (!result) throw new Win32Exception();
         }
+
+        public static unsafe ReadOnlyMemory<byte> WinDivertHelperCompileFilter(string filter, WinDivertConstants.WinDivertLayer layer)
+        {
+            var fobj = (new byte[256 * 24]).AsMemory();
+            var pErrorStr = (byte*)null;
+            var errorPos = (uint)0;
+            var result = false;
+            fixed (byte* pFobj = fobj.Span) result = NativeMethods.WinDivertHelperCompileFilter(filter, layer, pFobj, (uint)fobj.Length, &pErrorStr, &errorPos);
+            if (!result)
+            {
+                var errorLen = 0;
+                while (*(pErrorStr + errorLen) != 0) errorLen++;
+                var errorStr = Encoding.ASCII.GetString(pErrorStr, errorLen);
+                throw new WinDivertInvalidFilterException(errorStr, errorPos, nameof(filter));
+            }
+            return fobj;
+        }
     }
 
     internal class SafeWinDivertHandle : SafeHandleZeroOrMinusOneIsInvalid
@@ -205,6 +222,18 @@ namespace WinDivertNAT
                 handle?.DangerousRelease();
                 reference = false;
             }
+        }
+    }
+
+    internal class WinDivertInvalidFilterException : ArgumentException
+    {
+        public string FilterErrorStr;
+        public uint FilterErrorPos;
+
+        public WinDivertInvalidFilterException(string errorStr, uint errorPos, string? paramName) : base(errorStr, paramName)
+        {
+            FilterErrorStr = errorStr;
+            FilterErrorPos = errorPos;
         }
     }
 }
