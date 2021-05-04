@@ -136,7 +136,7 @@ namespace WinDivertNAT
         protected override bool ReleaseHandle() => NativeMethods.WinDivertClose(handle);
     }
 
-    internal class SafeHandleReference : IDisposable
+    internal struct SafeHandleReference : IDisposable
     {
         public readonly IntPtr RawHandle;
         private readonly SafeHandle? handle;
@@ -145,6 +145,7 @@ namespace WinDivertNAT
         public SafeHandleReference(SafeHandle? handle, IntPtr invalid)
         {
             this.handle = handle;
+            reference = false;
             if (handle is null || handle.IsInvalid || handle.IsClosed)
             {
                 RawHandle = invalid;
@@ -155,14 +156,6 @@ namespace WinDivertNAT
         }
 
         public void Dispose()
-        {
-            Release();
-            GC.SuppressFinalize(this);
-        }
-
-        ~SafeHandleReference() => Release();
-
-        private void Release()
         {
             if (reference)
             {
