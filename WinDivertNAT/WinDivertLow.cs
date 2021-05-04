@@ -72,12 +72,12 @@ namespace WinDivertNAT
 
             using (var href = new SafeHandleReference(handle, (IntPtr)(-1)))
             {
-                var result = false;
+                var success = false;
                 fixed (void* pPacket = packet) fixed (WinDivertAddress* pAddr = addr)
                 {
-                    result = NativeMethods.WinDivertRecvEx(href.RawHandle, pPacket, packetLen, &recvLen, 0, pAddr, pAddrLen, null);
+                    success = NativeMethods.WinDivertRecvEx(href.RawHandle, pPacket, packetLen, &recvLen, 0, pAddr, pAddrLen, null);
                 }
-                if (!result) ThrowLastWin32Error();
+                if (!success) ThrowLastWin32Error();
             }
 
             addrLen = (uint)(addrLen / sizeof(WinDivertAddress));
@@ -88,43 +88,43 @@ namespace WinDivertNAT
         {
             using var href = new SafeHandleReference(handle, (IntPtr)(-1));
             var sendLen = (uint)0;
-            var result = false;
+            var success = false;
 
             fixed (void* pPacket = packet) fixed (WinDivertAddress* pAddr = addr)
             {
-                result = NativeMethods.WinDivertSendEx(href.RawHandle, pPacket, (uint)packet.Length, &sendLen, 0, pAddr, (uint)(addr.Length * sizeof(WinDivertAddress)), null);
+                success = NativeMethods.WinDivertSendEx(href.RawHandle, pPacket, (uint)packet.Length, &sendLen, 0, pAddr, (uint)(addr.Length * sizeof(WinDivertAddress)), null);
             }
-            if (!result) ThrowLastWin32Error();
+            if (!success) ThrowLastWin32Error();
             return sendLen;
         }
 
         public static void WinDivertSetParam(SafeWinDivertHandle handle, WinDivertConstants.WinDivertParam param, ulong value)
         {
             using var href = new SafeHandleReference(handle, (IntPtr)(-1));
-            var result = NativeMethods.WinDivertSetParam(href.RawHandle, param, value);
-            if (!result) ThrowLastWin32Error();
+            var success = NativeMethods.WinDivertSetParam(href.RawHandle, param, value);
+            if (!success) ThrowLastWin32Error();
         }
 
         public static ulong WinDivertGetParam(SafeWinDivertHandle handle, WinDivertConstants.WinDivertParam param)
         {
             using var href = new SafeHandleReference(handle, (IntPtr)(-1));
-            var result = NativeMethods.WinDivertGetParam(href.RawHandle, param, out var value);
-            if (!result) ThrowLastWin32Error();
+            var success = NativeMethods.WinDivertGetParam(href.RawHandle, param, out var value);
+            if (!success) ThrowLastWin32Error();
             return value;
         }
 
         public static void WinDivertShutdown(SafeWinDivertHandle handle, WinDivertConstants.WinDivertShutdown how)
         {
             using var href = new SafeHandleReference(handle, (IntPtr)(-1));
-            var result = NativeMethods.WinDivertShutdown(href.RawHandle, how);
-            if (!result) ThrowLastWin32Error();
+            var success = NativeMethods.WinDivertShutdown(href.RawHandle, how);
+            if (!success) ThrowLastWin32Error();
         }
 
         public static unsafe IPv4Addr WinDivertHelperParseIPv4Address(string addrStr)
         {
             var addr = new IPv4Addr();
-            var result = NativeMethods.WinDivertHelperParseIPv4Address(addrStr, &addr.Raw);
-            if (!result) ThrowLastWin32Error();
+            var success = NativeMethods.WinDivertHelperParseIPv4Address(addrStr, &addr.Raw);
+            if (!success) ThrowLastWin32Error();
 
             addr.Raw = NativeMethods.WinDivertHelperHtonl(addr.Raw);
             return addr;
@@ -133,8 +133,8 @@ namespace WinDivertNAT
         public static unsafe IPv6Addr WinDivertHelperParseIPv6Address(string addrStr)
         {
             var addr = new IPv6Addr();
-            var result = NativeMethods.WinDivertHelperParseIPv6Address(addrStr, addr.Raw);
-            if (!result) ThrowLastWin32Error();
+            var success = NativeMethods.WinDivertHelperParseIPv6Address(addrStr, addr.Raw);
+            if (!success) ThrowLastWin32Error();
 
             NativeMethods.WinDivertHelperHtonIPv6Address(addr.Raw, addr.Raw);
             return addr;
@@ -145,9 +145,9 @@ namespace WinDivertNAT
             addr.Raw = NativeMethods.WinDivertHelperNtohl(addr.Raw);
 
             var buffer = (Span<byte>)stackalloc byte[32];
-            var result = false;
-            fixed (byte* pBuffer = buffer) result = NativeMethods.WinDivertHelperFormatIPv4Address(addr.Raw, pBuffer, (uint)buffer.Length);
-            if (!result) ThrowLastWin32Error();
+            var success = false;
+            fixed (byte* pBuffer = buffer) success = NativeMethods.WinDivertHelperFormatIPv4Address(addr.Raw, pBuffer, (uint)buffer.Length);
+            if (!success) ThrowLastWin32Error();
 
             var strlen = buffer.IndexOf((byte)0);
             return Encoding.ASCII.GetString(buffer[0..strlen]);
@@ -158,9 +158,9 @@ namespace WinDivertNAT
             NativeMethods.WinDivertHelperNtohIPv6Address(addr.Raw, addr.Raw);
 
             var buffer = (Span<byte>)stackalloc byte[64];
-            var result = false;
-            fixed (byte* pBuffer = buffer) result = NativeMethods.WinDivertHelperFormatIPv6Address(addr.Raw, pBuffer, (uint)buffer.Length);
-            if (!result) ThrowLastWin32Error();
+            var success = false;
+            fixed (byte* pBuffer = buffer) success = NativeMethods.WinDivertHelperFormatIPv6Address(addr.Raw, pBuffer, (uint)buffer.Length);
+            if (!success) ThrowLastWin32Error();
 
             var strlen = buffer.IndexOf((byte)0);
             return Encoding.ASCII.GetString(buffer[0..strlen]);
@@ -168,12 +168,12 @@ namespace WinDivertNAT
 
         public static unsafe void WinDivertHelperCalcChecksums(Span<byte> packet, ref WinDivertAddress addr, WinDivertConstants.WinDivertChecksumFlag flags)
         {
-            var result = false;
+            var success = false;
             fixed (void* pPacket = packet) fixed (WinDivertAddress* pAddr = &addr)
             {
-                result = NativeMethods.WinDivertHelperCalcChecksums(pPacket, (uint)packet.Length, pAddr, flags);
+                success = NativeMethods.WinDivertHelperCalcChecksums(pPacket, (uint)packet.Length, pAddr, flags);
             }
-            if (!result) ThrowLastWin32Error();
+            if (!success) ThrowLastWin32Error();
         }
 
         public static unsafe ReadOnlyMemory<byte> WinDivertHelperCompileFilter(string filter, WinDivertConstants.WinDivertLayer layer)
@@ -181,9 +181,9 @@ namespace WinDivertNAT
             var fobj = (new byte[256 * 24]).AsMemory();
             var pErrorStr = (byte*)null;
             var errorPos = (uint)0;
-            var result = false;
-            fixed (byte* pFobj = fobj.Span) result = NativeMethods.WinDivertHelperCompileFilter(filter, layer, pFobj, (uint)fobj.Length, &pErrorStr, &errorPos);
-            if (!result)
+            var success = false;
+            fixed (byte* pFobj = fobj.Span) success = NativeMethods.WinDivertHelperCompileFilter(filter, layer, pFobj, (uint)fobj.Length, &pErrorStr, &errorPos);
+            if (!success)
             {
                 var errorLen = 0;
                 while (*(pErrorStr + errorLen) != 0) errorLen++;
