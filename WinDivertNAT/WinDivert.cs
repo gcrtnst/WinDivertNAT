@@ -97,11 +97,12 @@ namespace WinDivertNAT
             this.packet = packet;
         }
 
-        public IEnumerator<ParseResult> GetEnumerator() => new PacketEnumerator(packet);
+        public PacketEnumerator GetEnumerator() => new(packet);
+        IEnumerator<ParseResult> IEnumerable<ParseResult>.GetEnumerator() => new PacketEnumerator(packet);
         IEnumerator IEnumerable.GetEnumerator() => new PacketEnumerator(packet);
     }
 
-    internal unsafe class PacketEnumerator : IEnumerator<ParseResult>
+    internal unsafe struct PacketEnumerator : IEnumerator<ParseResult>
     {
         private readonly MemoryHandle hmem;
         private readonly ReadOnlyMemory<byte> packet;
@@ -118,7 +119,9 @@ namespace WinDivertNAT
             hmem = packet.Pin();
             this.packet = packet;
             pPacket0 = (byte*)hmem.Pointer;
-            Reset();
+            pPacket = pPacket0;
+            packetLen = (uint)packet.Length;
+            current = new ParseResult();
         }
 
         public bool MoveNext()
@@ -159,18 +162,12 @@ namespace WinDivertNAT
 
         public void Reset()
         {
-            current = new ParseResult();
             pPacket = pPacket0;
             packetLen = (uint)packet.Length;
+            current = new ParseResult();
         }
 
-        public void Dispose()
-        {
-            hmem.Dispose();
-            GC.SuppressFinalize(this);
-        }
-
-        ~PacketEnumerator() => hmem.Dispose();
+        public void Dispose() => hmem.Dispose();
     }
 
     internal unsafe struct ParseResult
