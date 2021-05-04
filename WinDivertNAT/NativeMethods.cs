@@ -281,14 +281,46 @@ namespace WinDivertNAT
     }
 
     [StructLayout(LayoutKind.Sequential)]
-    internal struct IPv4Addr
+    internal struct IPv4Addr : IEquatable<IPv4Addr>
     {
         internal uint Addr;
+
+        public bool Equals(IPv4Addr addr) => Addr == addr.Addr;
+
+        public override bool Equals(object? obj)
+        {
+            if (obj is IPv4Addr) return Equals(obj);
+            return base.Equals(obj);
+        }
+
+        public override int GetHashCode() => base.GetHashCode();
+
+        public static bool operator ==(IPv4Addr left, IPv4Addr right) => left.Equals(right);
+        public static bool operator !=(IPv4Addr left, IPv4Addr right) => !left.Equals(right);
     }
 
     [StructLayout(LayoutKind.Sequential)]
-    internal unsafe struct IPv6Addr
+    internal unsafe struct IPv6Addr : IEquatable<IPv6Addr>
     {
         internal fixed uint Addr[4];
+
+        public bool Equals(IPv6Addr addr)
+        {
+            return Addr[0] == addr.Addr[0]
+                && Addr[1] == addr.Addr[1]
+                && Addr[2] == addr.Addr[2]
+                && Addr[3] == addr.Addr[3];
+        }
+
+        public override bool Equals(object? obj)
+        {
+            if (obj is IPv6Addr) return Equals(obj);
+            return base.Equals(obj);
+        }
+
+        public override int GetHashCode() => base.GetHashCode();
+
+        public static bool operator ==(IPv6Addr left, IPv6Addr right) => left.Equals(right);
+        public static bool operator !=(IPv6Addr left, IPv6Addr right) => !left.Equals(right);
     }
 }
