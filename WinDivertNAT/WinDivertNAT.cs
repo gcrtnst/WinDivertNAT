@@ -150,8 +150,8 @@ namespace WinDivertNAT
 
             if (modify && !Drop) RunNormal(token);
             else if (Drop && Logger is null) RunDrop(token);
-            else if (Drop && Logger is not null) RunRecvOnly(token);
-            else if (Logger is not null) RunSniff(token);
+            else if (Drop && Logger is not null) RunRecvOnly(false, token);
+            else if (Logger is not null) RunRecvOnly(true, token);
             else RunNothing(token);
         }
 
@@ -195,43 +195,6 @@ namespace WinDivertNAT
             }
         }
 
-        private void RunSniff(CancellationToken token)
-        {
-            using var divert = new WinDivert(Filter.Span, WinDivertConstants.WinDivertLayer.Network, priority, WinDivertConstants.WinDivertFlag.Sniff | WinDivertConstants.WinDivertFlag.RecvOnly)
-            {
-                QueueLength = queueLength,
-                QueueTime = queueTime,
-                QueueSize = queueSize
-            };
-
-            var packet = new Memory<byte>(new byte[bufSize]);
-            var abuf = new Memory<WinDivertAddress>(new WinDivertAddress[bufLength]);
-            using var reg = token.Register(() => divert.Shutdown());
-            while (true)
-            {
-                var recvLen = (uint)0;
-                var addrLen = (uint)0;
-                try
-                {
-                    (recvLen, addrLen) = divert.RecvEx(packet.Span, abuf.Span);
-                }
-                catch (Win32Exception e) when (e.NativeErrorCode == 232)
-                {
-                    token.ThrowIfCancellationRequested();
-                    return;
-                }
-
-                var recv = packet[0..(int)recvLen];
-                var addr = abuf[0..(int)addrLen];
-                var i = -1;
-                foreach (var parse in new WinDivertPacketParser(recv))
-                {
-                    i++;
-                    Log(parse, in addr.Span[i]);
-                }
-            }
-        }
-
         private void RunDrop(CancellationToken token)
         {
             using var divert = new WinDivert(Filter.Span, WinDivertConstants.WinDivertLayer.Network, priority, WinDivertConstants.WinDivertFlag.Drop | WinDivertConstants.WinDivertFlag.RecvOnly);
@@ -240,9 +203,12 @@ namespace WinDivertNAT
             token.ThrowIfCancellationRequested();
         }
 
-        private void RunRecvOnly(CancellationToken token)
+        private void RunRecvOnly(bool sniff, CancellationToken token)
         {
-            using var divert = new WinDivert(Filter.Span, WinDivertConstants.WinDivertLayer.Network, priority, WinDivertConstants.WinDivertFlag.RecvOnly)
+            var flags = WinDivertConstants.WinDivertFlag.RecvOnly;
+            if (sniff) flags |= WinDivertConstants.WinDivertFlag.Sniff;
+
+            using var divert = new WinDivert(Filter.Span, WinDivertConstants.WinDivertLayer.Network, priority, flags)
             {
                 QueueLength = queueLength,
                 QueueTime = queueTime,
