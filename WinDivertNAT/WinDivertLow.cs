@@ -212,7 +212,7 @@ namespace WinDivertNAT
         protected override bool ReleaseHandle() => NativeMethods.WinDivertClose(handle);
     }
 
-    internal struct SafeHandleReference : IDisposable
+    public struct SafeHandleReference : IDisposable
     {
         public IntPtr RawHandle { get; private set; }
 
