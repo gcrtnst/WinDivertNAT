@@ -107,7 +107,7 @@ namespace WinDivertNAT
         public static extern unsafe void WinDivertHelperHtonIPv6Address(uint* inAddr, uint* outAddr);
     }
 
-    internal static class WinDivertConstants
+    public static class WinDivertConstants
     {
         public enum WinDivertLayer
         {
@@ -173,7 +173,7 @@ namespace WinDivertNAT
     }
 
     [StructLayout(LayoutKind.Explicit)]
-    internal unsafe struct WinDivertAddress
+    public unsafe struct WinDivertAddress
     {
         [FieldOffset(0)] public long Timestamp;
         [FieldOffset(8)] public byte Layer;
@@ -244,14 +244,14 @@ namespace WinDivertNAT
     }
 
     [StructLayout(LayoutKind.Sequential)]
-    internal struct WinDivertDataNetwork
+    public struct WinDivertDataNetwork
     {
         public uint IfIdx;
         public uint SubIfIdx;
     }
 
     [StructLayout(LayoutKind.Sequential)]
-    internal unsafe struct WinDivertDataFlow
+    public unsafe struct WinDivertDataFlow
     {
         public ulong EndpointId;
         public ulong ParentEndpointId;
@@ -264,7 +264,7 @@ namespace WinDivertNAT
     }
 
     [StructLayout(LayoutKind.Sequential)]
-    internal unsafe struct WinDivertDataSocket
+    public unsafe struct WinDivertDataSocket
     {
         public ulong EndpointId;
         public ulong ParentEndpointId;
@@ -277,7 +277,7 @@ namespace WinDivertNAT
     }
 
     [StructLayout(LayoutKind.Sequential)]
-    internal struct WinDivertDataReflect
+    public struct WinDivertDataReflect
     {
         public long Timestamp;
         public uint ProcessId;
@@ -353,7 +353,7 @@ namespace WinDivertNAT
     }
 
     [StructLayout(LayoutKind.Sequential)]
-    internal struct IPv4Addr : IEquatable<IPv4Addr>
+    public struct IPv4Addr : IEquatable<IPv4Addr>
     {
         internal uint Raw;
 
@@ -372,7 +372,7 @@ namespace WinDivertNAT
     }
 
     [StructLayout(LayoutKind.Sequential)]
-    internal unsafe struct IPv6Addr : IEquatable<IPv6Addr>
+    public unsafe struct IPv6Addr : IEquatable<IPv6Addr>
     {
         internal fixed uint Raw[4];
 
