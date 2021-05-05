@@ -150,8 +150,7 @@ namespace WinDivertNAT
 
             if (modify && !Drop) RunNormal(token);
             else if (Drop && Logger is null) RunDrop(token);
-            else if (Drop && Logger is not null) RunRecvOnly(false, token);
-            else if (Logger is not null) RunRecvOnly(true, token);
+            else if (Logger is not null) RunRecvOnly(!Drop, token);
             else RunNothing(token);
         }
 
