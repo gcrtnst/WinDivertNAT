@@ -59,6 +59,16 @@ namespace WinDivertNATTests
         }
 
         [TestMethod]
+        public void Ctor_ValidHandle_CallsDangerousAddRef()
+        {
+            var handle = new SafeTestHandle();
+            var href = new SafeHandleReference(handle, (IntPtr)(-1));
+            handle.Dispose();
+            Assert.IsFalse(handle.Released);
+            href.Dispose();
+        }
+
+        [TestMethod]
         public void Dispose_ValidHandle_CallsDangerousRelease()
         {
             var handle = new SafeTestHandle();
