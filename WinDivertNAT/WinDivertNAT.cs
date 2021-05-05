@@ -188,7 +188,7 @@ namespace WinDivertNAT
                 foreach (var parse in new WinDivertPacketParser(recv))
                 {
                     i++;
-                    Log(parse);
+                    Log(parse, in addr.Span[i]);
                     ModifyPacket(parse, ref addr.Span[i]);
                 }
                 _ = divert.SendEx(recv.Span, addr.Span);
@@ -210,9 +210,10 @@ namespace WinDivertNAT
             while (true)
             {
                 var recvLen = (uint)0;
+                var addrLen = (uint)0;
                 try
                 {
-                    (recvLen, _) = divert.RecvEx(packet.Span, abuf.Span);
+                    (recvLen, addrLen) = divert.RecvEx(packet.Span, abuf.Span);
                 }
                 catch (Win32Exception e) when (e.NativeErrorCode == 232)
                 {
@@ -221,7 +222,13 @@ namespace WinDivertNAT
                 }
 
                 var recv = packet[0..(int)recvLen];
-                foreach (var parse in new WinDivertPacketParser(recv)) Log(parse);
+                var addr = abuf[0..(int)addrLen];
+                var i = -1;
+                foreach (var parse in new WinDivertPacketParser(recv))
+                {
+                    i++;
+                    Log(parse, in addr.Span[i]);
+                }
             }
         }
 
@@ -248,9 +255,10 @@ namespace WinDivertNAT
             while (true)
             {
                 var recvLen = (uint)0;
+                var addrLen = (uint)0;
                 try
                 {
-                    (recvLen, _) = divert.RecvEx(packet.Span, abuf.Span);
+                    (recvLen, addrLen) = divert.RecvEx(packet.Span, abuf.Span);
                 }
                 catch (Win32Exception e) when (e.NativeErrorCode == 232)
                 {
@@ -259,7 +267,13 @@ namespace WinDivertNAT
                 }
 
                 var recv = packet[0..(int)recvLen];
-                foreach (var parse in new WinDivertPacketParser(recv)) Log(parse);
+                var addr = abuf[0..(int)addrLen];
+                var i = -1;
+                foreach (var parse in new WinDivertPacketParser(recv))
+                {
+                    i++;
+                    Log(parse, in addr.Span[i]);
+                }
             }
         }
 
@@ -297,13 +311,16 @@ namespace WinDivertNAT
             WinDivertHelper.CalcChecksums(parse.Packet.Span, ref addr, 0);
         }
 
-        private unsafe void Log(WinDivertParseResult parse)
+        private unsafe void Log(WinDivertParseResult parse, in WinDivertAddress addr)
         {
             if (Logger is not null)
             {
                 var l = new List<string>
                 {
                     $"Time={DateTime.UtcNow:O}",
+                    $"Outbound={addr.Outbound}",
+                    $"IfIdx={addr.Network.IfIdx}",
+                    $"SubIfIdx={addr.Network.SubIfIdx}",
                 };
                 if (parse.IPv4Hdr != null)
                 {
