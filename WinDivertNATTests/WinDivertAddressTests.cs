@@ -16,5 +16,21 @@ namespace WinDivertNATTests
             addr.Loopback = false;
             Assert.AreEqual(false, addr.Loopback);
         }
+
+        [TestMethod]
+        public void Loopback_GetSet_NoSideEffects()
+        {
+            var addr = new WinDivertAddress
+            {
+                Loopback = true,
+            };
+            Assert.AreEqual(false, addr.Sniffed);
+            Assert.AreEqual(false, addr.Outbound);
+            Assert.AreEqual(false, addr.Impostor);
+            Assert.AreEqual(false, addr.IPv6);
+            Assert.AreEqual(false, addr.IPChecksum);
+            Assert.AreEqual(false, addr.TCPChecksum);
+            Assert.AreEqual(false, addr.UDPChecksum);
+        }
     }
 }
