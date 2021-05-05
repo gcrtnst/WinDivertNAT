@@ -178,13 +178,69 @@ namespace WinDivertNAT
         [FieldOffset(0)] public long Timestamp;
         [FieldOffset(8)] public byte Layer;
         [FieldOffset(9)] public byte Event;
-        [FieldOffset(10)] public byte Flags;
+        [FieldOffset(10)] private byte flags;
 
         [FieldOffset(16)] public WinDivertDataNetwork Network;
         [FieldOffset(16)] public WinDivertDataFlow Flow;
         [FieldOffset(16)] public WinDivertDataSocket Socket;
         [FieldOffset(16)] public WinDivertDataReflect Reflect;
         [FieldOffset(16)] private fixed byte reserved[64];
+
+        public bool Sniffed
+        {
+            get => GetFlag(1 << 0);
+            set => SetFlag(1 << 0, value);
+        }
+
+        public bool Outbound
+        {
+            get => GetFlag(1 << 1);
+            set => SetFlag(1 << 1, value);
+        }
+
+        public bool Loopback
+        {
+            get => GetFlag(1 << 2);
+            set => SetFlag(1 << 2, value);
+        }
+
+        public bool Impostor
+        {
+            get => GetFlag(1 << 3);
+            set => SetFlag(1 << 3, value);
+        }
+
+        public bool IPv6
+        {
+            get => GetFlag(1 << 4);
+            set => SetFlag(1 << 4, value);
+        }
+
+        public bool IPChecksum
+        {
+            get => GetFlag(1 << 5);
+            set => SetFlag(1 << 5, value);
+        }
+
+        public bool TCPChecksum
+        {
+            get => GetFlag(1 << 6);
+            set => SetFlag(1 << 6, value);
+        }
+
+        public bool UDPChecksum
+        {
+            get => GetFlag(1 << 7);
+            set => SetFlag(1 << 7, value);
+        }
+
+        private bool GetFlag(byte bit) => (flags & bit) != 0;
+
+        private void SetFlag(byte bit, bool val)
+        {
+            if (val) flags = (byte)(flags | bit);
+            else flags = (byte)((flags | bit) ^ bit);
+        }
     }
 
     [StructLayout(LayoutKind.Sequential)]
