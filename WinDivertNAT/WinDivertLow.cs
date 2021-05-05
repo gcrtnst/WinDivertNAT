@@ -214,25 +214,26 @@ namespace WinDivertNAT
 
     internal struct SafeHandleReference : IDisposable
     {
-        public readonly IntPtr RawHandle;
+        public IntPtr RawHandle { get; private set; }
+
         private readonly SafeHandle? handle;
+        private readonly IntPtr invalid;
         private bool reference;
 
         public SafeHandleReference(SafeHandle? handle, IntPtr invalid)
         {
+            RawHandle = invalid;
             this.handle = handle;
+            this.invalid = invalid;
             reference = false;
-            if (handle is null || handle.IsInvalid || handle.IsClosed)
-            {
-                RawHandle = invalid;
-                return;
-            }
+            if (handle is null || handle.IsInvalid || handle.IsClosed) return;
             handle.DangerousAddRef(ref reference);
             RawHandle = handle.DangerousGetHandle();
         }
 
         public void Dispose()
         {
+            RawHandle = invalid;
             if (reference)
             {
                 handle?.DangerousRelease();
