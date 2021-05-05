@@ -45,6 +45,8 @@ namespace WinDivertNAT
         public ReadOnlyMemory<byte> Filter;
         public bool Drop = false;
         public bool? Outbound = null;
+        public uint? IfIdx = null;
+        public uint? SubIfIdx = null;
         public IPv4Addr? IPv4SrcAddr = null;
         public IPv4Addr? IPv4DstAddr = null;
         public IPv6Addr? IPv6SrcAddr = null;
@@ -135,6 +137,8 @@ namespace WinDivertNAT
         public void Run(CancellationToken token)
         {
             var modify = Outbound.HasValue
+                || IfIdx.HasValue
+                || SubIfIdx.HasValue
                 || IPv4SrcAddr.HasValue
                 || IPv4DstAddr.HasValue
                 || IPv6SrcAddr.HasValue
@@ -268,6 +272,8 @@ namespace WinDivertNAT
         private unsafe void ModifyPacket(WinDivertParseResult parse, ref WinDivertAddress addr)
         {
             if (Outbound is bool outbound) addr.Outbound = outbound;
+            if (IfIdx is uint ifIdx) addr.Network.IfIdx = ifIdx;
+            if (SubIfIdx is uint subIfIdx) addr.Network.SubIfIdx = subIfIdx;
             if (parse.IPv4Hdr != null)
             {
                 if (IPv4SrcAddr is IPv4Addr ipv4SrcAddr) parse.IPv4Hdr->SrcAddr = ipv4SrcAddr;
