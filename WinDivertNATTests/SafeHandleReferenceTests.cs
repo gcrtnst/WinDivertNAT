@@ -59,10 +59,11 @@ namespace WinDivertNATTests
         }
 
         [TestMethod]
-        public void Dispose_CallTwice_NoException()
+        public void Dispose_CallThreeTimes_NoException()
         {
             using var handle = new SafeTestHandle();
             var href = new SafeHandleReference(handle, (IntPtr)(-1));
+            href.Dispose();
             href.Dispose();
             href.Dispose();
         }
