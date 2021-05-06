@@ -42,7 +42,7 @@ namespace WinDivertNATTests
     public class WinDivertLowTests
     {
         [TestMethod]
-        public void WinDivertRecvEx_EmptyAddress_RecvPacket()
+        public void WinDivertRecvEx_NoAddressBuffer_RecvPacket()
         {
             var packet = (Span<byte>)stackalloc byte[131072];
             using var handle = WinDivertLow.WinDivertOpen("true", WinDivertConstants.WinDivertLayer.Network, 0, WinDivertConstants.WinDivertFlag.Sniff | WinDivertConstants.WinDivertFlag.RecvOnly);
