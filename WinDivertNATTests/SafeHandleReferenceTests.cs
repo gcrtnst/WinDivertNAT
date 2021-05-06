@@ -43,7 +43,7 @@ namespace WinDivertNATTests
     public class SafeHandleReferenceTests
     {
         [TestMethod]
-        public void Ctor_NullHandle_SetsInvalid()
+        public void Ctor_NullHandle_SetInvalid()
         {
             var invalid = (IntPtr)(-1);
             using var href = new SafeHandleReference(null, invalid);
@@ -51,7 +51,7 @@ namespace WinDivertNATTests
         }
 
         [TestMethod]
-        public void Ctor_ValidHandle_SetsHandle()
+        public void Ctor_ValidHandle_SetHandle()
         {
             using var handle = new SafeTestHandle();
             using var href = new SafeHandleReference(handle, (IntPtr)(-1));
@@ -59,7 +59,7 @@ namespace WinDivertNATTests
         }
 
         [TestMethod]
-        public void Ctor_ValidHandle_CallsDangerousAddRef()
+        public void Ctor_ValidHandle_CallDangerousAddRef()
         {
             var handle = new SafeTestHandle();
             var href = new SafeHandleReference(handle, (IntPtr)(-1));
@@ -69,7 +69,7 @@ namespace WinDivertNATTests
         }
 
         [TestMethod]
-        public void Dispose_ValidHandle_CallsDangerousRelease()
+        public void Dispose_ValidHandle_CallDangerousRelease()
         {
             var handle = new SafeTestHandle();
             using (var href = new SafeHandleReference(handle, (IntPtr)(-1))) { }

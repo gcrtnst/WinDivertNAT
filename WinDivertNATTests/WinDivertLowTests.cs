@@ -121,7 +121,7 @@ namespace WinDivertNATTests
         }
 
         [TestMethod]
-        public void WinDivertHelperCompileFilter_InvalidFilter_Throws()
+        public void WinDivertHelperCompileFilter_InvalidFilter_Throw()
         {
             var e = Assert.ThrowsException<WinDivertInvalidFilterException>(() => _ = WinDivertLow.WinDivertHelperCompileFilter("zero == invalid", WinDivertConstants.WinDivertLayer.Network));
             Assert.AreEqual("Filter expression contains a bad token", e.FilterErrorStr);
