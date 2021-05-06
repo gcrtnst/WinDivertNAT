@@ -34,6 +34,9 @@
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
+using System.Net;
+using System.Net.Sockets;
+using System.Threading;
 using WinDivertNAT;
 
 namespace WinDivertNATTests
@@ -41,6 +44,19 @@ namespace WinDivertNATTests
     [TestClass]
     public class WinDivertLowTests
     {
+        [TestMethod]
+        public void WinDivertOpen_ValidArguments_DropPacket()
+        {
+            const int port = 52149;
+            using var handle = WinDivertLow.WinDivertOpen($"udp.DstPort == {port} and loopback", WinDivertConstants.WinDivertLayer.Network, 0, WinDivertConstants.WinDivertFlag.Drop | WinDivertConstants.WinDivertFlag.ReadOnly);
+            using var udps = new UdpClient(new IPEndPoint(IPAddress.Parse("127.0.0.1"), port));
+            udps.Client.ReceiveTimeout = 250;
+            using var udpc = new UdpClient("127.0.0.1", port);
+            _ = udpc.Send(new byte[1], 1);
+            var remoteEP = new IPEndPoint(IPAddress.Any, 0);
+            _ = Assert.ThrowsException<SocketException>(() => udps.Receive(ref remoteEP));
+        }
+
         [TestMethod]
         public void WinDivertRecvEx_BufferProvided_RecvPacket()
         {
