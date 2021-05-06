@@ -44,10 +44,19 @@ namespace WinDivertNATTests
         [TestMethod]
         public void WinDivertHelperParseIPv4Address_ValidAddress_RoundTrip()
         {
-            var expected = "127.0.0.1";
-            var addr = WinDivertLow.WinDivertHelperParseIPv4Address(expected);
-            var addrStr = WinDivertLow.WinDivertHelperFormatIPv4Address(addr);
-            Assert.AreEqual(expected, addrStr);
+            var input = "127.0.0.1";
+            var addr = WinDivertLow.WinDivertHelperParseIPv4Address(input);
+            var output = WinDivertLow.WinDivertHelperFormatIPv4Address(addr);
+            Assert.AreEqual(input, output);
+        }
+
+        [TestMethod]
+        public void WinDivertHelperParseIPv6Address_ValidAddress_RoundTrip()
+        {
+            var input = "2001:db8:85a3::8a2e:370:7334";
+            var addr = WinDivertLow.WinDivertHelperParseIPv6Address(input);
+            var output = WinDivertLow.WinDivertHelperFormatIPv6Address(addr);
+            Assert.AreEqual(input, output);
         }
 
         [TestMethod]
