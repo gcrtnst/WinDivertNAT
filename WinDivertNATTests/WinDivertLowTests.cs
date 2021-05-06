@@ -47,12 +47,16 @@ namespace WinDivertNATTests
         public void WinDivertOpen_ValidArguments_DropPacket()
         {
             const int port = 52149;
-            using var handle = WinDivertLow.WinDivertOpen($"udp.DstPort == {port} and loopback", WinDivertConstants.WinDivertLayer.Network, 0, WinDivertConstants.WinDivertFlag.Drop | WinDivertConstants.WinDivertFlag.ReadOnly);
+            var remoteEP = new IPEndPoint(IPAddress.Any, 0);
             using var udps = new UdpClient(new IPEndPoint(IPAddress.Parse("127.0.0.1"), port));
             udps.Client.ReceiveTimeout = 250;
             using var udpc = new UdpClient("127.0.0.1", port);
+
             _ = udpc.Send(new byte[1], 1);
-            var remoteEP = new IPEndPoint(IPAddress.Any, 0);
+            _ = udps.Receive(ref remoteEP);
+
+            using var handle = WinDivertLow.WinDivertOpen($"udp.DstPort == {port} and loopback", WinDivertConstants.WinDivertLayer.Network, 0, WinDivertConstants.WinDivertFlag.Drop | WinDivertConstants.WinDivertFlag.ReadOnly);
+            _ = udpc.Send(new byte[1], 1);
             var e = Assert.ThrowsException<SocketException>(() => udps.Receive(ref remoteEP));
             Assert.AreEqual(SocketError.TimedOut, e.SocketErrorCode);
         }
