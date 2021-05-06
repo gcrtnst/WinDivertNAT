@@ -53,7 +53,8 @@ namespace WinDivertNATTests
             using var udpc = new UdpClient("127.0.0.1", port);
             _ = udpc.Send(new byte[1], 1);
             var remoteEP = new IPEndPoint(IPAddress.Any, 0);
-            _ = Assert.ThrowsException<SocketException>(() => udps.Receive(ref remoteEP));
+            var e = Assert.ThrowsException<SocketException>(() => udps.Receive(ref remoteEP));
+            Assert.AreEqual(SocketError.TimedOut, e.SocketErrorCode);
         }
 
         [TestMethod]
