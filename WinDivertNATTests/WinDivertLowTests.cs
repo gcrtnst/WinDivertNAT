@@ -34,6 +34,7 @@
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
+using System.ComponentModel;
 using System.Net;
 using System.Net.Sockets;
 using WinDivertNAT;
@@ -90,6 +91,15 @@ namespace WinDivertNATTests
             Assert.IsTrue(recvLen > 0);
             Assert.IsTrue(packet[0] != 0);
             Assert.AreEqual<uint>(0, addrLen);
+        }
+
+        [TestMethod]
+        public void WinDivertRecvEx_InsufficientBuffer_Throw()
+        {
+            var packet = new Memory<byte>(new byte[1]);
+            using var handle = WinDivertLow.WinDivertOpen("true", WinDivertConstants.WinDivertLayer.Network, 0, WinDivertConstants.WinDivertFlag.Sniff | WinDivertConstants.WinDivertFlag.RecvOnly);
+            var e = Assert.ThrowsException<Win32Exception>(() => WinDivertLow.WinDivertRecvEx(handle, packet.Span, Span<WinDivertAddress>.Empty));
+            Assert.AreEqual(122, e.NativeErrorCode);
         }
 
         [TestMethod]
