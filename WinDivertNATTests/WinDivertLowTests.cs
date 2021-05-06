@@ -33,11 +33,30 @@
  */
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
+using WinDivertNAT;
 
 namespace WinDivertNATTests
 {
     [TestClass]
     public class WinDivertLowTests
     {
+        [TestMethod]
+        public void WinDivertHelperCompileFilter_InvalidFilter_Throws()
+        {
+            try
+            {
+                _ = WinDivertLow.WinDivertHelperCompileFilter("zero == invalid", WinDivertConstants.WinDivertLayer.Network);
+            }
+            catch (WinDivertInvalidFilterException e)
+            {
+                Assert.AreEqual("Filter expression contains a bad token", e.FilterErrorStr);
+                Assert.AreEqual<uint>(8, e.FilterErrorPos);
+            }
+            catch (Exception)
+            {
+                Assert.Fail();
+            }
+        }
     }
 }

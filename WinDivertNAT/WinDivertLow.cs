@@ -41,7 +41,7 @@ using System.Text;
 
 namespace WinDivertNAT
 {
-    internal static class WinDivertLow
+    public static class WinDivertLow
     {
         public static SafeWinDivertHandle WinDivertOpen(string filter, WinDivertConstants.WinDivertLayer layer, short priority, WinDivertConstants.WinDivertFlag flags)
         {
@@ -202,7 +202,7 @@ namespace WinDivertNAT
         }
     }
 
-    internal class SafeWinDivertHandle : SafeHandleZeroOrMinusOneIsInvalid
+    public class SafeWinDivertHandle : SafeHandleZeroOrMinusOneIsInvalid
     {
         internal SafeWinDivertHandle(IntPtr existingHandle, bool ownsHandle) : base(ownsHandle)
         {
@@ -242,7 +242,7 @@ namespace WinDivertNAT
         }
     }
 
-    internal class WinDivertInvalidFilterException : ArgumentException
+    public class WinDivertInvalidFilterException : ArgumentException
     {
         public string FilterErrorStr;
         public uint FilterErrorPos;
