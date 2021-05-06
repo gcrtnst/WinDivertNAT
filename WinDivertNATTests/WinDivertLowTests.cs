@@ -42,6 +42,15 @@ namespace WinDivertNATTests
     public class WinDivertLowTests
     {
         [TestMethod]
+        public void WinDivertHelperParseIPv4Address_ValidAddress_RoundTrip()
+        {
+            var expected = "127.0.0.1";
+            var addr = WinDivertLow.WinDivertHelperParseIPv4Address(expected);
+            var addrStr = WinDivertLow.WinDivertHelperFormatIPv4Address(addr);
+            Assert.AreEqual(expected, addrStr);
+        }
+
+        [TestMethod]
         public void WinDivertHelperCompileFilter_InvalidFilter_Throws()
         {
             try
