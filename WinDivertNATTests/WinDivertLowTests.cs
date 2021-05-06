@@ -62,6 +62,13 @@ namespace WinDivertNATTests
         }
 
         [TestMethod]
+        public void WinDivertOpen_InvalidArguments_Throw()
+        {
+            var filter = WinDivertLow.WinDivertHelperCompileFilter("zero", WinDivertConstants.WinDivertLayer.Network);
+            _ = Assert.ThrowsException<ArgumentException>(() => WinDivertLow.WinDivertOpen(filter.Span, WinDivertConstants.WinDivertLayer.Network, 32767, 0));
+        }
+
+        [TestMethod]
         public void WinDivertRecvEx_BufferProvided_RecvPacket()
         {
             var packet = (Span<byte>)stackalloc byte[131072];
