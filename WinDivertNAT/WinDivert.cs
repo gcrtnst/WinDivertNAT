@@ -39,7 +39,7 @@ using System.Collections.Generic;
 
 namespace WinDivertNAT
 {
-    internal class WinDivert : IDisposable
+    public class WinDivert : IDisposable
     {
         private readonly SafeWinDivertHandle handle;
 
@@ -80,7 +80,10 @@ namespace WinDivertNAT
         public void ShutdownRecv() => WinDivertLow.WinDivertShutdown(handle, WinDivertConstants.WinDivertShutdown.Recv);
         public void ShutdownSend() => WinDivertLow.WinDivertShutdown(handle, WinDivertConstants.WinDivertShutdown.Send);
         public void Shutdown() => WinDivertLow.WinDivertShutdown(handle, WinDivertConstants.WinDivertShutdown.Both);
+
+#pragma warning disable CA1816
         public void Dispose() => handle.Dispose();
+#pragma warning restore CA1816
     }
 
     internal static class WinDivertHelper
