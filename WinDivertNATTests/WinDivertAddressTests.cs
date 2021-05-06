@@ -41,7 +41,7 @@ namespace WinDivertNATTests
     public class WinDivertAddressTests
     {
         [TestMethod]
-        public void Loopback_GetSet_Success()
+        public void Loopback_GetSet_RoundTrip()
         {
             var addr = new WinDivertAddress();
             Assert.AreEqual(false, addr.Loopback);
