@@ -178,7 +178,7 @@ namespace WinDivertNAT
         public WinDivertParseResult Current => current;
         object IEnumerator.Current => current;
 
-        public WinDivertPacketEnumerator(Memory<byte> packet)
+        internal WinDivertPacketEnumerator(Memory<byte> packet)
         {
             hmem = packet.Pin();
             this.packet = packet;
