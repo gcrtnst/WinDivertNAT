@@ -133,13 +133,13 @@ namespace WinDivertNATTests
             Assert.IsTrue(parseList[1].TCPHdr == null);
             Assert.IsTrue(parseList[2].TCPHdr == null);
 
-            var hport = WinDivertHelper.Hton((ushort)port);
+            var nport = WinDivertHelper.Hton((ushort)port);
             Assert.IsTrue(parseList[0].UDPHdr != null);
             Assert.IsTrue(parseList[1].UDPHdr != null);
             Assert.IsTrue(parseList[2].UDPHdr != null);
-            Assert.AreEqual(hport, parseList[0].UDPHdr->DstPort);
-            Assert.AreEqual(hport, parseList[1].UDPHdr->DstPort);
-            Assert.AreEqual(hport, parseList[2].UDPHdr->DstPort);
+            Assert.AreEqual(nport, parseList[0].UDPHdr->DstPort);
+            Assert.AreEqual(nport, parseList[1].UDPHdr->DstPort);
+            Assert.AreEqual(nport, parseList[2].UDPHdr->DstPort);
             Assert.AreEqual(WinDivertHelper.Hton((ushort)(parseList[0].Data.Length + 8)), parseList[0].UDPHdr->Length);
             Assert.AreEqual(WinDivertHelper.Hton((ushort)(parseList[1].Data.Length + 8)), parseList[1].UDPHdr->Length);
             Assert.AreEqual(WinDivertHelper.Hton((ushort)(parseList[2].Data.Length + 8)), parseList[2].UDPHdr->Length);
