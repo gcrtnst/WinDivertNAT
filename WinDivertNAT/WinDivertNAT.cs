@@ -51,10 +51,6 @@ namespace WinDivertNAT
         public IPv4Addr? IPv4DstAddr = null;
         public IPv6Addr? IPv6SrcAddr = null;
         public IPv6Addr? IPv6DstAddr = null;
-        public ushort? TCPSrcPort = null;
-        public ushort? TCPDstPort = null;
-        public ushort? UDPSrcPort = null;
-        public ushort? UDPDstPort = null;
         public TextWriter? Logger = null;
 
         private short priority = 0;
@@ -123,6 +119,50 @@ namespace WinDivertNAT
             }
         }
 
+        private ushort? tcpSrcPort = null;
+        public ushort? TCPSrcPort
+        {
+            get => this.tcpSrcPort is ushort tcpSrcPort
+                ? WinDivertHelper.Ntoh(tcpSrcPort)
+                : null;
+            set => tcpSrcPort = value is ushort v
+                ? WinDivertHelper.Hton(v)
+                : null;
+        }
+
+        private ushort? tcpDstPort = null;
+        public ushort? TCPDstPort
+        {
+            get => this.tcpDstPort is ushort tcpDstPort
+                ? WinDivertHelper.Ntoh(tcpDstPort)
+                : null;
+            set => tcpDstPort = value is ushort v
+                ? WinDivertHelper.Hton(v)
+                : null;
+        }
+
+        private ushort? udpSrcPort = null;
+        public ushort? UDPSrcPort
+        {
+            get => this.udpSrcPort is ushort udpSrcPort
+                ? WinDivertHelper.Ntoh(udpSrcPort)
+                : null;
+            set => udpSrcPort = value is ushort v
+                ? WinDivertHelper.Hton(v)
+                : null;
+        }
+
+        private ushort? udpDstPort = null;
+        public ushort? UDPDstPort
+        {
+            get => this.udpDstPort is ushort udpDstPort
+                ? WinDivertHelper.Ntoh(udpDstPort)
+                : null;
+            set => udpDstPort = value is ushort v
+                ? WinDivertHelper.Hton(v)
+                : null;
+        }
+
         public WinDivertNAT(string filter)
         {
             var fobj = WinDivertHelper.CompileFilter(filter, WinDivertConstants.WinDivertLayer.Network);
@@ -143,10 +183,10 @@ namespace WinDivertNAT
                 || IPv4DstAddr.HasValue
                 || IPv6SrcAddr.HasValue
                 || IPv6DstAddr.HasValue
-                || TCPSrcPort.HasValue
-                || TCPDstPort.HasValue
-                || UDPSrcPort.HasValue
-                || UDPDstPort.HasValue;
+                || tcpSrcPort.HasValue
+                || tcpDstPort.HasValue
+                || udpSrcPort.HasValue
+                || udpDstPort.HasValue;
 
             if (modify && !Drop) RunNormal(token);
             else if (Drop && Logger is null) RunDrop(token);
@@ -265,13 +305,13 @@ namespace WinDivertNAT
             }
             if (parse.TCPHdr != null)
             {
-                if (TCPSrcPort is ushort tcpSrcPort) parse.TCPHdr->SrcPort = tcpSrcPort;
-                if (TCPDstPort is ushort tcpDstPort) parse.TCPHdr->DstPort = tcpDstPort;
+                if (this.tcpSrcPort is ushort tcpSrcPort) parse.TCPHdr->SrcPort = tcpSrcPort;
+                if (this.tcpDstPort is ushort tcpDstPort) parse.TCPHdr->DstPort = tcpDstPort;
             }
             if (parse.UDPHdr != null)
             {
-                if (UDPSrcPort is ushort udpSrcPort) parse.UDPHdr->SrcPort = udpSrcPort;
-                if (UDPDstPort is ushort udpDstPort) parse.UDPHdr->DstPort = udpDstPort;
+                if (this.udpSrcPort is ushort udpSrcPort) parse.UDPHdr->SrcPort = udpSrcPort;
+                if (this.udpDstPort is ushort udpDstPort) parse.UDPHdr->DstPort = udpDstPort;
             }
             WinDivertHelper.CalcChecksums(parse.Packet.Span, ref addr, 0);
         }
