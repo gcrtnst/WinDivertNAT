@@ -128,12 +128,12 @@ namespace WinDivertNATTests
             var (recvLen, addrLen) = WinDivertLow.WinDivertRecvEx(handle, packet.Span, abuf.Span);
             var recv = packet[0..(int)recvLen];
             var addr = abuf[0..(int)addrLen];
-            foreach (var parse in new WinDivertPacketParser(packet))
+            foreach (var (i, p) in new WinDivertIndexedPacketParser(packet))
             {
-                if (parse.IPv4Hdr != null) parse.IPv4Hdr->TTL = 0;
-                if (parse.IPv6Hdr != null) parse.IPv6Hdr->HopLimit = 0;
+                if (p.IPv4Hdr != null) p.IPv4Hdr->TTL = 0;
+                if (p.IPv6Hdr != null) p.IPv6Hdr->HopLimit = 0;
+                addr.Span[i].Impostor = true;
             }
-            foreach (ref var a in addr.Span) a.Impostor = true;
             var e = Assert.ThrowsException<Win32Exception>(() => WinDivertLow.WinDivertSendEx(handle, recv.Span, addr.Span));
             Assert.AreEqual(1232, e.NativeErrorCode);
         }
@@ -173,12 +173,10 @@ namespace WinDivertNATTests
             var (recvLen, addrLen) = WinDivertLow.WinDivertRecvEx(handle, packet.Span, abuf.Span);
             var recv = packet[..(int)recvLen];
             var addr = abuf[..(int)addrLen];
-            var i = -1;
-            foreach (var parse in new WinDivertPacketParser(recv))
+            foreach (var (i, p) in new WinDivertIndexedPacketParser(recv))
             {
-                i++;
-                parse.UDPHdr->DstPort = hport2;
-                WinDivertLow.WinDivertHelperCalcChecksums(parse.Packet.Span, ref addr.Span[i], 0);
+                p.UDPHdr->DstPort = hport2;
+                WinDivertLow.WinDivertHelperCalcChecksums(p.Packet.Span, ref addr.Span[i], 0);
             }
             _ = WinDivertLow.WinDivertSendEx(handle, recv.Span, addr.Span);
             var remoteEP = new IPEndPoint(IPAddress.Any, 0);

@@ -223,12 +223,10 @@ namespace WinDivertNAT
 
                 var recv = packet[0..(int)recvLen];
                 var addr = abuf[0..(int)addrLen];
-                var i = -1;
-                foreach (var parse in new WinDivertPacketParser(recv))
+                foreach (var (i, p) in new WinDivertIndexedPacketParser(recv))
                 {
-                    i++;
-                    Log(parse, in addr.Span[i]);
-                    ModifyPacket(parse, ref addr.Span[i]);
+                    Log(p, in addr.Span[i]);
+                    ModifyPacket(p, ref addr.Span[i]);
                 }
                 _ = divert.SendEx(recv.Span, addr.Span);
             }
@@ -273,12 +271,7 @@ namespace WinDivertNAT
 
                 var recv = packet[0..(int)recvLen];
                 var addr = abuf[0..(int)addrLen];
-                var i = -1;
-                foreach (var parse in new WinDivertPacketParser(recv))
-                {
-                    i++;
-                    Log(parse, in addr.Span[i]);
-                }
+                foreach (var (i, p) in new WinDivertIndexedPacketParser(recv)) Log(p, in addr.Span[i]);
             }
         }
 
@@ -288,35 +281,35 @@ namespace WinDivertNAT
             token.ThrowIfCancellationRequested();
         }
 
-        private unsafe void ModifyPacket(WinDivertParseResult parse, ref WinDivertAddress addr)
+        private unsafe void ModifyPacket(WinDivertParseResult p, ref WinDivertAddress addr)
         {
             if (Outbound is bool outbound) addr.Outbound = outbound;
             if (IfIdx is uint ifIdx) addr.Network.IfIdx = ifIdx;
             if (SubIfIdx is uint subIfIdx) addr.Network.SubIfIdx = subIfIdx;
-            if (parse.IPv4Hdr != null)
+            if (p.IPv4Hdr != null)
             {
-                if (IPv4SrcAddr is IPv4Addr ipv4SrcAddr) parse.IPv4Hdr->SrcAddr = ipv4SrcAddr;
-                if (IPv4DstAddr is IPv4Addr ipv4DstAddr) parse.IPv4Hdr->DstAddr = ipv4DstAddr;
+                if (IPv4SrcAddr is IPv4Addr ipv4SrcAddr) p.IPv4Hdr->SrcAddr = ipv4SrcAddr;
+                if (IPv4DstAddr is IPv4Addr ipv4DstAddr) p.IPv4Hdr->DstAddr = ipv4DstAddr;
             }
-            if (parse.IPv6Hdr != null)
+            if (p.IPv6Hdr != null)
             {
-                if (IPv6SrcAddr is IPv6Addr ipv6SrcAddr) parse.IPv6Hdr->SrcAddr = ipv6SrcAddr;
-                if (IPv6DstAddr is IPv6Addr ipv6DstAddr) parse.IPv6Hdr->DstAddr = ipv6DstAddr;
+                if (IPv6SrcAddr is IPv6Addr ipv6SrcAddr) p.IPv6Hdr->SrcAddr = ipv6SrcAddr;
+                if (IPv6DstAddr is IPv6Addr ipv6DstAddr) p.IPv6Hdr->DstAddr = ipv6DstAddr;
             }
-            if (parse.TCPHdr != null)
+            if (p.TCPHdr != null)
             {
-                if (this.tcpSrcPort is ushort tcpSrcPort) parse.TCPHdr->SrcPort = tcpSrcPort;
-                if (this.tcpDstPort is ushort tcpDstPort) parse.TCPHdr->DstPort = tcpDstPort;
+                if (this.tcpSrcPort is ushort tcpSrcPort) p.TCPHdr->SrcPort = tcpSrcPort;
+                if (this.tcpDstPort is ushort tcpDstPort) p.TCPHdr->DstPort = tcpDstPort;
             }
-            if (parse.UDPHdr != null)
+            if (p.UDPHdr != null)
             {
-                if (this.udpSrcPort is ushort udpSrcPort) parse.UDPHdr->SrcPort = udpSrcPort;
-                if (this.udpDstPort is ushort udpDstPort) parse.UDPHdr->DstPort = udpDstPort;
+                if (this.udpSrcPort is ushort udpSrcPort) p.UDPHdr->SrcPort = udpSrcPort;
+                if (this.udpDstPort is ushort udpDstPort) p.UDPHdr->DstPort = udpDstPort;
             }
-            WinDivertHelper.CalcChecksums(parse.Packet.Span, ref addr, 0);
+            WinDivertHelper.CalcChecksums(p.Packet.Span, ref addr, 0);
         }
 
-        private unsafe void Log(WinDivertParseResult parse, in WinDivertAddress addr)
+        private unsafe void Log(WinDivertParseResult p, in WinDivertAddress addr)
         {
             if (Logger is not null)
             {
@@ -327,25 +320,25 @@ namespace WinDivertNAT
                     $"IfIdx={addr.Network.IfIdx}",
                     $"SubIfIdx={addr.Network.SubIfIdx}",
                 };
-                if (parse.IPv4Hdr != null)
+                if (p.IPv4Hdr != null)
                 {
-                    l.Add($"IPv4SrcAddr={WinDivertHelper.FormatIPv4Address(parse.IPv4Hdr->SrcAddr)}");
-                    l.Add($"IPv4DstAddr={WinDivertHelper.FormatIPv4Address(parse.IPv4Hdr->DstAddr)}");
+                    l.Add($"IPv4SrcAddr={WinDivertHelper.FormatIPv4Address(p.IPv4Hdr->SrcAddr)}");
+                    l.Add($"IPv4DstAddr={WinDivertHelper.FormatIPv4Address(p.IPv4Hdr->DstAddr)}");
                 }
-                if (parse.IPv6Hdr != null)
+                if (p.IPv6Hdr != null)
                 {
-                    l.Add($"IPv6SrcAddr={WinDivertHelper.FormatIPv6Address(parse.IPv6Hdr->SrcAddr)}");
-                    l.Add($"IPv6DstAddr={WinDivertHelper.FormatIPv6Address(parse.IPv6Hdr->DstAddr)}");
+                    l.Add($"IPv6SrcAddr={WinDivertHelper.FormatIPv6Address(p.IPv6Hdr->SrcAddr)}");
+                    l.Add($"IPv6DstAddr={WinDivertHelper.FormatIPv6Address(p.IPv6Hdr->DstAddr)}");
                 }
-                if (parse.TCPHdr != null)
+                if (p.TCPHdr != null)
                 {
-                    l.Add($"TCPSrcPort={WinDivertHelper.Ntoh(parse.TCPHdr->SrcPort)}");
-                    l.Add($"TCPDstPort={WinDivertHelper.Ntoh(parse.TCPHdr->DstPort)}");
+                    l.Add($"TCPSrcPort={WinDivertHelper.Ntoh(p.TCPHdr->SrcPort)}");
+                    l.Add($"TCPDstPort={WinDivertHelper.Ntoh(p.TCPHdr->DstPort)}");
                 }
-                if (parse.UDPHdr != null)
+                if (p.UDPHdr != null)
                 {
-                    l.Add($"UDPSrcPort={WinDivertHelper.Ntoh(parse.UDPHdr->SrcPort)}");
-                    l.Add($"UDPDstPort={WinDivertHelper.Ntoh(parse.UDPHdr->DstPort)}");
+                    l.Add($"UDPSrcPort={WinDivertHelper.Ntoh(p.UDPHdr->SrcPort)}");
+                    l.Add($"UDPDstPort={WinDivertHelper.Ntoh(p.UDPHdr->DstPort)}");
                 }
                 Logger.WriteLine(string.Join(" ", l));
             }
