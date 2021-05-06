@@ -122,45 +122,29 @@ namespace WinDivertNAT
         private ushort? tcpSrcPort = null;
         public ushort? TCPSrcPort
         {
-            get => this.tcpSrcPort is ushort tcpSrcPort
-                ? WinDivertHelper.Ntoh(tcpSrcPort)
-                : null;
-            set => tcpSrcPort = value is ushort v
-                ? WinDivertHelper.Hton(v)
-                : null;
+            get => GetPortProperty(tcpSrcPort);
+            set => tcpSrcPort = SetPortProperty(value);
         }
 
         private ushort? tcpDstPort = null;
         public ushort? TCPDstPort
         {
-            get => this.tcpDstPort is ushort tcpDstPort
-                ? WinDivertHelper.Ntoh(tcpDstPort)
-                : null;
-            set => tcpDstPort = value is ushort v
-                ? WinDivertHelper.Hton(v)
-                : null;
+            get => GetPortProperty(tcpDstPort);
+            set => tcpDstPort = SetPortProperty(value);
         }
 
         private ushort? udpSrcPort = null;
         public ushort? UDPSrcPort
         {
-            get => this.udpSrcPort is ushort udpSrcPort
-                ? WinDivertHelper.Ntoh(udpSrcPort)
-                : null;
-            set => udpSrcPort = value is ushort v
-                ? WinDivertHelper.Hton(v)
-                : null;
+            get => GetPortProperty(udpSrcPort);
+            set => udpSrcPort = SetPortProperty(value);
         }
 
         private ushort? udpDstPort = null;
         public ushort? UDPDstPort
         {
-            get => this.udpDstPort is ushort udpDstPort
-                ? WinDivertHelper.Ntoh(udpDstPort)
-                : null;
-            set => udpDstPort = value is ushort v
-                ? WinDivertHelper.Hton(v)
-                : null;
+            get => GetPortProperty(udpDstPort);
+            set => udpDstPort = SetPortProperty(value);
         }
 
         public WinDivertNAT(string filter)
@@ -342,6 +326,20 @@ namespace WinDivertNAT
                 }
                 Logger.WriteLine(string.Join(" ", l));
             }
+        }
+
+        private static ushort? GetPortProperty(ushort? prop)
+        {
+            return prop is ushort nport
+                ? WinDivertHelper.Ntoh(nport)
+                : null;
+        }
+
+        private static ushort? SetPortProperty(ushort? value)
+        {
+            return value is ushort hport
+                ? WinDivertHelper.Hton(hport)
+                : null;
         }
     }
 }
