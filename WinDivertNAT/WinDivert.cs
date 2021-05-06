@@ -102,6 +102,56 @@ namespace WinDivertNAT
         public static ulong Hton(ulong x) => NativeMethods.WinDivertHelperHtonll(x);
     }
 
+    public struct WinDivertIndexedPacketParser : IEnumerable<(int, WinDivertParseResult)>
+    {
+        private readonly WinDivertPacketParser e;
+
+        public WinDivertIndexedPacketParser(Memory<byte> packet)
+        {
+            e = new WinDivertPacketParser(packet);
+        }
+
+        public WinDivertIndexedPacketParser(WinDivertPacketParser e)
+        {
+            this.e = e;
+        }
+
+        public WinDivertIndexedPacketEnumerator GetEnumerator() => new(e.GetEnumerator());
+        IEnumerator<(int, WinDivertParseResult)> IEnumerable<(int, WinDivertParseResult)>.GetEnumerator() => GetEnumerator();
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+    }
+
+    public struct WinDivertIndexedPacketEnumerator : IEnumerator<(int, WinDivertParseResult)>
+    {
+        private WinDivertPacketEnumerator e;
+        private int i;
+
+        public (int, WinDivertParseResult) Current => (i, e.Current);
+        object IEnumerator.Current => Current;
+
+        internal WinDivertIndexedPacketEnumerator(WinDivertPacketEnumerator e)
+        {
+            this.e = e;
+            i = -1;
+        }
+
+        public bool MoveNext()
+        {
+            var success = e.MoveNext();
+            if (!success) return false;
+            i++;
+            return true;
+        }
+
+        public void Reset()
+        {
+            e.Reset();
+            i = -1;
+        }
+
+        public void Dispose() => e.Dispose();
+    }
+
     public struct WinDivertPacketParser : IEnumerable<WinDivertParseResult>
     {
         private readonly Memory<byte> packet;
