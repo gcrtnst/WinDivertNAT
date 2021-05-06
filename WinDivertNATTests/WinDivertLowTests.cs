@@ -157,6 +157,13 @@ namespace WinDivertNATTests
         }
 
         [TestMethod]
+        public void WinDivertHelperCompileFilter_ValidFilter_NoException()
+        {
+            var filter = WinDivertLow.WinDivertHelperCompileFilter("false", WinDivertConstants.WinDivertLayer.Network);
+            using var handle = WinDivertLow.WinDivertOpen(filter.Span, WinDivertConstants.WinDivertLayer.Network, 0, WinDivertConstants.WinDivertFlag.Sniff | WinDivertConstants.WinDivertFlag.RecvOnly);
+        }
+
+        [TestMethod]
         public void WinDivertHelperCompileFilter_InvalidFilter_Throw()
         {
             var e = Assert.ThrowsException<WinDivertInvalidFilterException>(() => _ = WinDivertLow.WinDivertHelperCompileFilter("zero == invalid", WinDivertConstants.WinDivertLayer.Network));
