@@ -86,7 +86,7 @@ namespace WinDivertNAT
 #pragma warning restore CA1816
     }
 
-    internal static class WinDivertHelper
+    public static class WinDivertHelper
     {
         public static IPv4Addr ParseIPv4Address(string addrStr) => WinDivertLow.WinDivertHelperParseIPv4Address(addrStr);
         public static IPv6Addr ParseIPv6Address(string addrStr) => WinDivertLow.WinDivertHelperParseIPv6Address(addrStr);
