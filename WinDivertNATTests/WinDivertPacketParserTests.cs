@@ -43,12 +43,12 @@ namespace WinDivertNATTests
     [TestClass]
     public class WinDivertPacketParserTests
     {
-        private readonly int port = 52149;
+        private const int port = 52149;
+        private readonly Memory<byte> recv = Packet();
 
         [TestMethod]
         public void MoveNext_Call_ReturnBool()
         {
-            var recv = Packet();
             using var hmem = recv.Pin();
             using var enumerator = new WinDivertPacketParser(recv).GetEnumerator();
             Assert.IsTrue(enumerator.MoveNext());
@@ -57,7 +57,7 @@ namespace WinDivertNATTests
             Assert.IsFalse(enumerator.MoveNext());
         }
 
-        private Memory<byte> Packet()
+        private static Memory<byte> Packet()
         {
             var send = new byte[3] { 0, 1, 2 };
             var packet = new Memory<byte>(new byte[131072]);
