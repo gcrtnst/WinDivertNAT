@@ -148,5 +148,20 @@ namespace WinDivertNATTests
             Assert.IsTrue(parseList[1].Packet.Span[^parseList[1].Data.Length..] == parseList[1].Data.Span);
             Assert.IsTrue(parseList[2].Packet.Span[^parseList[2].Data.Length..] == parseList[2].Data.Span);
         }
+
+        [TestMethod]
+        public void Reset_Call_Reset()
+        {
+            using var enumerator = new WinDivertPacketParser(recv).GetEnumerator();
+            _ = enumerator.MoveNext();
+            _ = enumerator.MoveNext();
+            _ = enumerator.MoveNext();
+            enumerator.Reset();
+            Assert.IsTrue(enumerator.MoveNext());
+            Assert.IsTrue(enumerator.MoveNext());
+            Assert.IsTrue(enumerator.MoveNext());
+            Assert.IsFalse(enumerator.MoveNext());
+            Assert.IsFalse(enumerator.MoveNext());
+        }
     }
 }
