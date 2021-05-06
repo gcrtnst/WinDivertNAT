@@ -82,6 +82,23 @@ namespace WinDivertNATTests
         }
 
         [TestMethod]
+        public void WinDivertSendEx_BufferProvided_SendPacket()
+        {
+            const int port = 52149;
+            var packet = (Span<byte>)stackalloc byte[131072];
+            var abuf = (Span<WinDivertAddress>)stackalloc WinDivertAddress[127];
+            using var handle = WinDivertLow.WinDivertOpen($"udp.DstPort == {port} and loopback", WinDivertConstants.WinDivertLayer.Network, 0, 0);
+            using var udps = new UdpClient(new IPEndPoint(IPAddress.Parse("127.0.0.1"), port));
+            udps.Client.ReceiveTimeout = 250;
+            using var udpc = new UdpClient("127.0.0.1", port);
+            _ = udpc.Send(new byte[1], 1);
+            var (recvLen, addrLen) = WinDivertLow.WinDivertRecvEx(handle, packet, abuf);
+            _ = WinDivertLow.WinDivertSendEx(handle, packet[0..(int)recvLen], abuf[0..(int)addrLen]);
+            var remoteEP = new IPEndPoint(IPAddress.Any, 0);
+            _ = udps.Receive(ref remoteEP);
+        }
+
+        [TestMethod]
         public void WinDivertHelperParseIPv4Address_ValidAddress_RoundTrip()
         {
             var input = "127.0.0.1";
