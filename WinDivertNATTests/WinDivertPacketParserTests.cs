@@ -49,7 +49,6 @@ namespace WinDivertNATTests
         [TestMethod]
         public void MoveNext_Call_ReturnBool()
         {
-            using var hmem = recv.Pin();
             using var enumerator = new WinDivertPacketParser(recv).GetEnumerator();
             Assert.IsTrue(enumerator.MoveNext());
             Assert.IsTrue(enumerator.MoveNext());
