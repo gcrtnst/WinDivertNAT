@@ -173,7 +173,7 @@ namespace WinDivertNAT
             {
                 success = NativeMethods.WinDivertHelperCalcChecksums(pPacket, (uint)packet.Length, pAddr, flags);
             }
-            if (!success) ThrowLastWin32Error();
+            if (!success) throw new ArgumentException(null);
         }
 
         public static unsafe ReadOnlyMemory<byte> WinDivertHelperCompileFilter(string filter, WinDivertConstants.WinDivertLayer layer)
