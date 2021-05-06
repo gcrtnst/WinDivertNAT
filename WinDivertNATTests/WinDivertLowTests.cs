@@ -150,6 +150,17 @@ namespace WinDivertNATTests
         }
 
         [TestMethod]
+        public void WinDivertShutdown_ShutdownRecv_RecvFailed()
+        {
+            using var handle = WinDivertLow.WinDivertOpen("false", WinDivertConstants.WinDivertLayer.Network, 0, WinDivertConstants.WinDivertFlag.Sniff | WinDivertConstants.WinDivertFlag.RecvOnly);
+            WinDivertLow.WinDivertShutdown(handle, WinDivertConstants.WinDivertShutdown.Recv);
+
+            var packet = new Memory<byte>(new byte[131072]);
+            var e = Assert.ThrowsException<Win32Exception>(() => WinDivertLow.WinDivertRecvEx(handle, packet.Span, Span<WinDivertAddress>.Empty));
+            Assert.AreEqual(232, e.NativeErrorCode);
+        }
+
+        [TestMethod]
         public void WinDivertHelperParseIPv4Address_ValidAddress_RoundTrip()
         {
             var input = "127.0.0.1";
