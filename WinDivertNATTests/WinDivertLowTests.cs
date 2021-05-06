@@ -139,6 +139,17 @@ namespace WinDivertNATTests
         }
 
         [TestMethod]
+        public void WinDivertSetParam_ValidParam_RoundTrip()
+        {
+            using var handle = WinDivertLow.WinDivertOpen("false", WinDivertConstants.WinDivertLayer.Network, 0, WinDivertConstants.WinDivertFlag.Sniff | WinDivertConstants.WinDivertFlag.RecvOnly);
+            var v = WinDivertLow.WinDivertGetParam(handle, WinDivertConstants.WinDivertParam.QueueLength);
+            var input = v + 1;
+            WinDivertLow.WinDivertSetParam(handle, WinDivertConstants.WinDivertParam.QueueLength, input);
+            var output = WinDivertLow.WinDivertGetParam(handle, WinDivertConstants.WinDivertParam.QueueLength);
+            Assert.AreEqual(input, output);
+        }
+
+        [TestMethod]
         public void WinDivertHelperParseIPv4Address_ValidAddress_RoundTrip()
         {
             var input = "127.0.0.1";
