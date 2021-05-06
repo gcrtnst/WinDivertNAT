@@ -164,7 +164,7 @@ namespace WinDivertNAT
             current.UDPHdr = udpHdr;
             current.Data = pData != null && dataLen > 0
                 ? packet[(int)(pData - pPacket0)..(int)(pData + dataLen - pPacket0)]
-                : null;
+                : Memory<byte>.Empty;
 
             pPacket = pNext;
             packetLen = nextLen;
