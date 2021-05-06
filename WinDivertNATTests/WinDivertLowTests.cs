@@ -157,6 +157,35 @@ namespace WinDivertNATTests
         }
 
         [TestMethod]
+        public unsafe void WinDivertHelperCalcChecksums_ValidArguments_CalcChecksums()
+        {
+            const int port1 = 52149;
+            const int port2 = port1 + 1;
+            var hport2 = WinDivertHelper.Hton(port2);
+            var packet = new Memory<byte>(new byte[131072]);
+            var abuf = new Memory<WinDivertAddress>(new WinDivertAddress[127]);
+            using var handle = WinDivertLow.WinDivertOpen($"udp.DstPort == {port1} and loopback", WinDivertConstants.WinDivertLayer.Network, 0, 0);
+            using var udps = new UdpClient(new IPEndPoint(IPAddress.Parse("127.0.0.1"), port2));
+            using var udpc = new UdpClient("127.0.0.1", port1);
+            udps.Client.ReceiveTimeout = 250;
+
+            _ = udpc.Send(new byte[1], 1);
+            var (recvLen, addrLen) = WinDivertLow.WinDivertRecvEx(handle, packet.Span, abuf.Span);
+            var recv = packet[..(int)recvLen];
+            var addr = abuf[..(int)addrLen];
+            var i = -1;
+            foreach (var parse in new WinDivertPacketParser(recv))
+            {
+                i++;
+                parse.UDPHdr->DstPort = hport2;
+                WinDivertLow.WinDivertHelperCalcChecksums(parse.Packet.Span, ref addr.Span[i], 0);
+            }
+            _ = WinDivertLow.WinDivertSendEx(handle, recv.Span, addr.Span);
+            var remoteEP = new IPEndPoint(IPAddress.Any, 0);
+            _ = udps.Receive(ref remoteEP);
+        }
+
+        [TestMethod]
         public void WinDivertHelperCompileFilter_ValidFilter_NoException()
         {
             var filter = WinDivertLow.WinDivertHelperCompileFilter("false", WinDivertConstants.WinDivertLayer.Network);
