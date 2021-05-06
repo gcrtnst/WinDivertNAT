@@ -287,7 +287,7 @@ namespace WinDivertNAT
     }
 
     [StructLayout(LayoutKind.Sequential)]
-    internal struct WinDivertIPv4Hdr
+    public struct WinDivertIPv4Hdr
     {
         private readonly byte versionIHL;
         public byte TOS;
@@ -302,7 +302,7 @@ namespace WinDivertNAT
     }
 
     [StructLayout(LayoutKind.Sequential)]
-    internal struct WinDivertIPv6Hdr
+    public struct WinDivertIPv6Hdr
     {
         private readonly uint version0;
         public ushort Length;
@@ -313,7 +313,7 @@ namespace WinDivertNAT
     }
 
     [StructLayout(LayoutKind.Sequential)]
-    internal struct WinDivertICMPv4Hdr
+    public struct WinDivertICMPv4Hdr
     {
         public byte Type;
         public byte Code;
@@ -322,7 +322,7 @@ namespace WinDivertNAT
     }
 
     [StructLayout(LayoutKind.Sequential)]
-    internal struct WinDivertICMPv6Hdr
+    public struct WinDivertICMPv6Hdr
     {
         public byte Type;
         public byte Code;
@@ -331,7 +331,7 @@ namespace WinDivertNAT
     }
 
     [StructLayout(LayoutKind.Sequential)]
-    internal struct WinDivertTCPHdr
+    public struct WinDivertTCPHdr
     {
         public ushort SrcPort;
         public ushort DstPort;
@@ -344,7 +344,7 @@ namespace WinDivertNAT
     }
 
     [StructLayout(LayoutKind.Sequential)]
-    internal struct WinDivertUDPHdr
+    public struct WinDivertUDPHdr
     {
         public ushort SrcPort;
         public ushort DstPort;

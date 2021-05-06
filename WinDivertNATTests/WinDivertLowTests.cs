@@ -120,6 +120,25 @@ namespace WinDivertNATTests
         }
 
         [TestMethod]
+        public unsafe void WinDivertSendEx_DeadPacket_Throw()
+        {
+            var packet = new Memory<byte>(new byte[131072]);
+            var abuf = new Memory<WinDivertAddress>(new WinDivertAddress[127]);
+            using var handle = WinDivertLow.WinDivertOpen("true", WinDivertConstants.WinDivertLayer.Network, 0, WinDivertConstants.WinDivertFlag.Sniff);
+            var (recvLen, addrLen) = WinDivertLow.WinDivertRecvEx(handle, packet.Span, abuf.Span);
+            var recv = packet[0..(int)recvLen];
+            var addr = abuf[0..(int)addrLen];
+            foreach (var parse in new WinDivertPacketParser(packet))
+            {
+                if (parse.IPv4Hdr != null) parse.IPv4Hdr->TTL = 0;
+                if (parse.IPv6Hdr != null) parse.IPv6Hdr->HopLimit = 0;
+            }
+            foreach (ref var a in addr.Span) a.Impostor = true;
+            var e = Assert.ThrowsException<Win32Exception>(() => WinDivertLow.WinDivertSendEx(handle, recv.Span, addr.Span));
+            Assert.AreEqual(1232, e.NativeErrorCode);
+        }
+
+        [TestMethod]
         public void WinDivertHelperParseIPv4Address_ValidAddress_RoundTrip()
         {
             var input = "127.0.0.1";

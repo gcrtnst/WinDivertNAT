@@ -99,7 +99,7 @@ namespace WinDivertNAT
         public static ulong Hton(ulong x) => NativeMethods.WinDivertHelperHtonll(x);
     }
 
-    internal struct WinDivertPacketParser : IEnumerable<WinDivertParseResult>
+    public struct WinDivertPacketParser : IEnumerable<WinDivertParseResult>
     {
         private readonly Memory<byte> packet;
 
@@ -113,7 +113,7 @@ namespace WinDivertNAT
         IEnumerator IEnumerable.GetEnumerator() => new WinDivertPacketEnumerator(packet);
     }
 
-    internal unsafe struct WinDivertPacketEnumerator : IEnumerator<WinDivertParseResult>
+    public unsafe struct WinDivertPacketEnumerator : IEnumerator<WinDivertParseResult>
     {
         private readonly MemoryHandle hmem;
         private readonly Memory<byte> packet;
@@ -181,7 +181,7 @@ namespace WinDivertNAT
         public void Dispose() => hmem.Dispose();
     }
 
-    internal unsafe struct WinDivertParseResult
+    public unsafe struct WinDivertParseResult
     {
         public Memory<byte> Packet;
         public WinDivertIPv4Hdr* IPv4Hdr;
