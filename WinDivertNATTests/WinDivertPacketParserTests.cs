@@ -54,7 +54,7 @@ namespace WinDivertNATTests
             var packet = new Memory<byte>(new byte[131072]);
             var abuf = (Span<WinDivertAddress>)stackalloc WinDivertAddress[127];
             using var divert = new WinDivert($"udp.DstPort == {port} and loopback", WinDivertConstants.WinDivertLayer.Network, 0, WinDivertConstants.WinDivertFlag.Sniff | WinDivertConstants.WinDivertFlag.RecvOnly);
-            using var udps = new UdpClient(new IPEndPoint(IPAddress.Parse("127.0.0.1"), port));
+            using var udps = new UdpClient(new IPEndPoint(IPAddress.Loopback, port));
             using var udpc = new UdpClient("127.0.0.1", port);
             _ = udpc.Send(send.ToArray(), 1);
             _ = udpc.Send(send.ToArray(), 2);

@@ -49,7 +49,7 @@ namespace WinDivertNATTests
         {
             const int port = 52149;
             var remoteEP = new IPEndPoint(IPAddress.Any, 0);
-            using var udps = new UdpClient(new IPEndPoint(IPAddress.Parse("127.0.0.1"), port));
+            using var udps = new UdpClient(new IPEndPoint(IPAddress.Loopback, port));
             udps.Client.ReceiveTimeout = 250;
             using var udpc = new UdpClient("127.0.0.1", port);
 
@@ -76,7 +76,7 @@ namespace WinDivertNATTests
             var packet = (Span<byte>)stackalloc byte[131072];
             var abuf = (Span<WinDivertAddress>)stackalloc WinDivertAddress[127];
             using var handle = WinDivertLow.WinDivertOpen($"udp.DstPort == {port} and loopback", WinDivertConstants.WinDivertLayer.Network, 0, WinDivertConstants.WinDivertFlag.Sniff | WinDivertConstants.WinDivertFlag.RecvOnly);
-            using var udps = new UdpClient(new IPEndPoint(IPAddress.Parse("127.0.0.1"), port));
+            using var udps = new UdpClient(new IPEndPoint(IPAddress.Loopback, port));
             using (var udpc = new UdpClient("127.0.0.1", port)) _ = udpc.Send(new byte[1], 1);
 
             var (recvLen, addrLen) = WinDivertLow.WinDivertRecvEx(handle, packet, abuf);
@@ -92,7 +92,7 @@ namespace WinDivertNATTests
             const int port = 52149;
             var packet = (Span<byte>)stackalloc byte[131072];
             using var handle = WinDivertLow.WinDivertOpen($"udp.DstPort == {port} and loopback", WinDivertConstants.WinDivertLayer.Network, 0, WinDivertConstants.WinDivertFlag.Sniff | WinDivertConstants.WinDivertFlag.RecvOnly);
-            using var udps = new UdpClient(new IPEndPoint(IPAddress.Parse("127.0.0.1"), port));
+            using var udps = new UdpClient(new IPEndPoint(IPAddress.Loopback, port));
             using (var udpc = new UdpClient("127.0.0.1", port)) _ = udpc.Send(new byte[1], 1);
 
             var (recvLen, addrLen) = WinDivertLow.WinDivertRecvEx(handle, packet, Span<WinDivertAddress>.Empty);
@@ -107,7 +107,7 @@ namespace WinDivertNATTests
             const int port = 52149;
             var packet = new Memory<byte>(new byte[1]);
             using var handle = WinDivertLow.WinDivertOpen($"udp.DstPort == {port} and loopback", WinDivertConstants.WinDivertLayer.Network, 0, WinDivertConstants.WinDivertFlag.Sniff | WinDivertConstants.WinDivertFlag.RecvOnly);
-            using var udps = new UdpClient(new IPEndPoint(IPAddress.Parse("127.0.0.1"), port));
+            using var udps = new UdpClient(new IPEndPoint(IPAddress.Loopback, port));
             using (var udpc = new UdpClient("127.0.0.1", port)) _ = udpc.Send(new byte[1], 1);
 
             var e = Assert.ThrowsException<Win32Exception>(() => WinDivertLow.WinDivertRecvEx(handle, packet.Span, Span<WinDivertAddress>.Empty));
@@ -121,7 +121,7 @@ namespace WinDivertNATTests
             var packet = (Span<byte>)stackalloc byte[131072];
             var abuf = (Span<WinDivertAddress>)stackalloc WinDivertAddress[127];
             using var handle = WinDivertLow.WinDivertOpen($"udp.DstPort == {port} and loopback", WinDivertConstants.WinDivertLayer.Network, 0, 0);
-            using var udps = new UdpClient(new IPEndPoint(IPAddress.Parse("127.0.0.1"), port));
+            using var udps = new UdpClient(new IPEndPoint(IPAddress.Loopback, port));
             udps.Client.ReceiveTimeout = 250;
             using var udpc = new UdpClient("127.0.0.1", port);
             _ = udpc.Send(new byte[1], 1);
@@ -138,7 +138,7 @@ namespace WinDivertNATTests
             var packet = new Memory<byte>(new byte[131072]);
             var abuf = new Memory<WinDivertAddress>(new WinDivertAddress[127]);
             using var handle = WinDivertLow.WinDivertOpen($"udp.DstPort == {port} and loopback", WinDivertConstants.WinDivertLayer.Network, 0, WinDivertConstants.WinDivertFlag.Sniff);
-            using var udps = new UdpClient(new IPEndPoint(IPAddress.Parse("127.0.0.1"), port));
+            using var udps = new UdpClient(new IPEndPoint(IPAddress.Loopback, port));
             using (var udpc = new UdpClient("127.0.0.1", port)) _ = udpc.Send(new byte[1], 1);
 
             var (recvLen, addrLen) = WinDivertLow.WinDivertRecvEx(handle, packet.Span, abuf.Span);
@@ -203,7 +203,7 @@ namespace WinDivertNATTests
             var packet = new Memory<byte>(new byte[131072]);
             var abuf = new Memory<WinDivertAddress>(new WinDivertAddress[127]);
             using var handle = WinDivertLow.WinDivertOpen($"udp.DstPort == {port1} and loopback", WinDivertConstants.WinDivertLayer.Network, 0, 0);
-            using var udps = new UdpClient(new IPEndPoint(IPAddress.Parse("127.0.0.1"), port2));
+            using var udps = new UdpClient(new IPEndPoint(IPAddress.Loopback, port2));
             using var udpc = new UdpClient("127.0.0.1", port1);
             udps.Client.ReceiveTimeout = 250;
 
