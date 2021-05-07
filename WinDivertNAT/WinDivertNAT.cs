@@ -233,8 +233,8 @@ namespace WinDivertNAT
                 || udpDstPort.HasValue;
 
             if (modify && !Drop) RunNormal(token);
-            else if (Drop && Logger is null) RunDrop(token);
             else if (Logger is not null) RunRecvOnly(token);
+            else if (Drop && Logger is null) RunDrop(token);
             else RunNothing(token);
         }
 
@@ -276,14 +276,6 @@ namespace WinDivertNAT
             }
         }
 
-        private void RunDrop(CancellationToken token)
-        {
-            using var divert = new WinDivert(Filter.Span, WinDivertConstants.WinDivertLayer.Network, priority, WinDivertConstants.WinDivertFlag.Drop | WinDivertConstants.WinDivertFlag.RecvOnly);
-            _ = token.WaitHandle.WaitOne();
-            divert.Shutdown();
-            token.ThrowIfCancellationRequested();
-        }
-
         private void RunRecvOnly(CancellationToken token)
         {
             var flags = WinDivertConstants.WinDivertFlag.RecvOnly;
@@ -317,6 +309,14 @@ namespace WinDivertNAT
                 var addr = abuf[0..(int)addrLen];
                 foreach (var (i, p) in new WinDivertIndexedPacketParser(recv)) Log(p, in addr.Span[i]);
             }
+        }
+
+        private void RunDrop(CancellationToken token)
+        {
+            using var divert = new WinDivert(Filter.Span, WinDivertConstants.WinDivertLayer.Network, priority, WinDivertConstants.WinDivertFlag.Drop | WinDivertConstants.WinDivertFlag.RecvOnly);
+            _ = token.WaitHandle.WaitOne();
+            divert.Shutdown();
+            token.ThrowIfCancellationRequested();
         }
 
         private static void RunNothing(CancellationToken token)
