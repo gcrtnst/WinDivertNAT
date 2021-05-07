@@ -42,18 +42,13 @@ namespace WinDivertNAT
 {
     internal class WinDivertNAT
     {
-        public ReadOnlyMemory<byte> Filter;
-        public bool Drop = false;
-        public bool? Outbound = null;
-        public uint? IfIdx = null;
-        public uint? SubIfIdx = null;
-        public TextWriter? Logger = null;
+        public readonly ReadOnlyMemory<byte> Filter;
 
         private short priority = 0;
         public short Priority
         {
             get => priority;
-            set
+            init
             {
                 if (value is < (-30000) or > 30000) throw new ArgumentOutOfRangeException(nameof(value));
                 priority = value;
@@ -64,7 +59,7 @@ namespace WinDivertNAT
         public ulong QueueLength
         {
             get => queueLength;
-            set
+            init
             {
                 if (value is < 32 or > 16384) throw new ArgumentOutOfRangeException(nameof(value));
                 queueLength = value;
@@ -75,7 +70,7 @@ namespace WinDivertNAT
         public ulong QueueTime
         {
             get => queueTime;
-            set
+            init
             {
                 if (value is < 100 or > 16000) throw new ArgumentOutOfRangeException(nameof(value));
                 queueTime = value;
@@ -86,7 +81,7 @@ namespace WinDivertNAT
         public ulong QueueSize
         {
             get => queueSize;
-            set
+            init
             {
                 if (value is < 65535 or > 33554432) throw new ArgumentOutOfRangeException(nameof(value));
                 queueSize = value;
@@ -97,7 +92,7 @@ namespace WinDivertNAT
         public int BufLength
         {
             get => bufLength;
-            set
+            init
             {
                 if (value is < 1 or > 255) throw new ArgumentOutOfRangeException(nameof(value));
                 bufLength = value;
@@ -108,18 +103,23 @@ namespace WinDivertNAT
         public int BufSize
         {
             get => bufSize;
-            set
+            init
             {
                 if (value is < 65535 or > 33554432) throw new ArgumentOutOfRangeException(nameof(value));
                 bufSize = value;
             }
         }
 
+        public bool Drop { get; init; } = false;
+        public bool? Outbound { get; init; } = null;
+        public uint? IfIdx { get; init; } = null;
+        public uint? SubIfIdx { get; init; } = null;
+
         private IPv4Addr? ipv4SrcAddr = null;
         public IPv4Addr? IPv4SrcAddr
         {
             get => ipv4SrcAddr;
-            set
+            init
             {
                 ipv4SrcAddr = value;
                 checksumFlag = ChecksumFlag();
@@ -130,7 +130,7 @@ namespace WinDivertNAT
         public IPv4Addr? IPv4DstAddr
         {
             get => ipv4DstAddr;
-            set
+            init
             {
                 ipv4DstAddr = value;
                 checksumFlag = ChecksumFlag();
@@ -141,7 +141,7 @@ namespace WinDivertNAT
         public IPv6Addr? IPv6SrcAddr
         {
             get => ipv6SrcAddr;
-            set
+            init
             {
                 ipv6SrcAddr = value;
                 checksumFlag = ChecksumFlag();
@@ -152,7 +152,7 @@ namespace WinDivertNAT
         public IPv6Addr? IPv6DstAddr
         {
             get => ipv6DstAddr;
-            set
+            init
             {
                 ipv6DstAddr = value;
                 checksumFlag = ChecksumFlag();
@@ -163,7 +163,7 @@ namespace WinDivertNAT
         public ushort? TCPSrcPort
         {
             get => GetPortProperty(tcpSrcPort);
-            set
+            init
             {
                 tcpSrcPort = SetPortProperty(value);
                 checksumFlag = ChecksumFlag();
@@ -174,7 +174,7 @@ namespace WinDivertNAT
         public ushort? TCPDstPort
         {
             get => GetPortProperty(tcpDstPort);
-            set
+            init
             {
                 tcpDstPort = SetPortProperty(value);
                 checksumFlag = ChecksumFlag();
@@ -185,7 +185,7 @@ namespace WinDivertNAT
         public ushort? UDPSrcPort
         {
             get => GetPortProperty(udpSrcPort);
-            set
+            init
             {
                 udpSrcPort = SetPortProperty(value);
                 checksumFlag = ChecksumFlag();
@@ -196,12 +196,14 @@ namespace WinDivertNAT
         public ushort? UDPDstPort
         {
             get => GetPortProperty(udpDstPort);
-            set
+            init
             {
                 udpDstPort = SetPortProperty(value);
                 checksumFlag = ChecksumFlag();
             }
         }
+
+        public TextWriter? Logger { get; init; } = null;
 
         private WinDivertConstants.WinDivertChecksumFlag checksumFlag;
 
