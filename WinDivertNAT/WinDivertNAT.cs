@@ -47,10 +47,6 @@ namespace WinDivertNAT
         public bool? Outbound = null;
         public uint? IfIdx = null;
         public uint? SubIfIdx = null;
-        public IPv4Addr? IPv4SrcAddr = null;
-        public IPv4Addr? IPv4DstAddr = null;
-        public IPv6Addr? IPv6SrcAddr = null;
-        public IPv6Addr? IPv6DstAddr = null;
         public TextWriter? Logger = null;
 
         private short priority = 0;
@@ -119,43 +115,107 @@ namespace WinDivertNAT
             }
         }
 
+        private IPv4Addr? ipv4SrcAddr = null;
+        public IPv4Addr? IPv4SrcAddr
+        {
+            get => ipv4SrcAddr;
+            set
+            {
+                ipv4SrcAddr = value;
+                checksumFlag = ChecksumFlag();
+            }
+        }
+
+        private IPv4Addr? ipv4DstAddr = null;
+        public IPv4Addr? IPv4DstAddr
+        {
+            get => ipv4DstAddr;
+            set
+            {
+                ipv4DstAddr = value;
+                checksumFlag = ChecksumFlag();
+            }
+        }
+
+        private IPv6Addr? ipv6SrcAddr = null;
+        public IPv6Addr? IPv6SrcAddr
+        {
+            get => ipv6SrcAddr;
+            set
+            {
+                ipv6SrcAddr = value;
+                checksumFlag = ChecksumFlag();
+            }
+        }
+
+        private IPv6Addr? ipv6DstAddr = null;
+        public IPv6Addr? IPv6DstAddr
+        {
+            get => ipv6DstAddr;
+            set
+            {
+                ipv6DstAddr = value;
+                checksumFlag = ChecksumFlag();
+            }
+        }
+
         private ushort? tcpSrcPort = null;
         public ushort? TCPSrcPort
         {
             get => GetPortProperty(tcpSrcPort);
-            set => tcpSrcPort = SetPortProperty(value);
+            set
+            {
+                tcpSrcPort = SetPortProperty(value);
+                checksumFlag = ChecksumFlag();
+            }
         }
 
         private ushort? tcpDstPort = null;
         public ushort? TCPDstPort
         {
             get => GetPortProperty(tcpDstPort);
-            set => tcpDstPort = SetPortProperty(value);
+            set
+            {
+                tcpDstPort = SetPortProperty(value);
+                checksumFlag = ChecksumFlag();
+            }
         }
 
         private ushort? udpSrcPort = null;
         public ushort? UDPSrcPort
         {
             get => GetPortProperty(udpSrcPort);
-            set => udpSrcPort = SetPortProperty(value);
+            set
+            {
+                udpSrcPort = SetPortProperty(value);
+                checksumFlag = ChecksumFlag();
+            }
         }
 
         private ushort? udpDstPort = null;
         public ushort? UDPDstPort
         {
             get => GetPortProperty(udpDstPort);
-            set => udpDstPort = SetPortProperty(value);
+            set
+            {
+                udpDstPort = SetPortProperty(value);
+                checksumFlag = ChecksumFlag();
+            }
         }
+
+        private WinDivertConstants.WinDivertChecksumFlag checksumFlag;
 
         public WinDivertNAT(string filter)
         {
             var fobj = WinDivertHelper.CompileFilter(filter, WinDivertConstants.WinDivertLayer.Network);
             Filter = fobj;
+            checksumFlag = ChecksumFlag();
         }
 
         public WinDivertNAT(ReadOnlyMemory<byte> filter)
         {
             Filter = filter;
+            checksumFlag = ChecksumFlag();
         }
 
         public void Run(CancellationToken token)
@@ -163,10 +223,10 @@ namespace WinDivertNAT
             var modify = Outbound.HasValue
                 || IfIdx.HasValue
                 || SubIfIdx.HasValue
-                || IPv4SrcAddr.HasValue
-                || IPv4DstAddr.HasValue
-                || IPv6SrcAddr.HasValue
-                || IPv6DstAddr.HasValue
+                || ipv4SrcAddr.HasValue
+                || ipv4DstAddr.HasValue
+                || ipv6SrcAddr.HasValue
+                || ipv6DstAddr.HasValue
                 || tcpSrcPort.HasValue
                 || tcpDstPort.HasValue
                 || udpSrcPort.HasValue
@@ -267,39 +327,30 @@ namespace WinDivertNAT
 
         private unsafe void ModifyPacket(WinDivertParseResult p, ref WinDivertAddress addr)
         {
-            var flags = WinDivertConstants.WinDivertChecksumFlag.NoIPv4Checksum
-                | WinDivertConstants.WinDivertChecksumFlag.NoICMPv4Checksum
-                | WinDivertConstants.WinDivertChecksumFlag.NoICMPv6Checksum
-                | WinDivertConstants.WinDivertChecksumFlag.NoTCPChecksum
-                | WinDivertConstants.WinDivertChecksumFlag.NoUDPChecksum;
-
             if (Outbound is bool outbound) addr.Outbound = outbound;
             if (IfIdx is uint ifIdx) addr.Network.IfIdx = ifIdx;
             if (SubIfIdx is uint subIfIdx) addr.Network.SubIfIdx = subIfIdx;
             if (p.IPv4Hdr != null)
             {
-                if (IPv4SrcAddr is IPv4Addr ipv4SrcAddr) p.IPv4Hdr->SrcAddr = ipv4SrcAddr;
-                if (IPv4DstAddr is IPv4Addr ipv4DstAddr) p.IPv4Hdr->DstAddr = ipv4DstAddr;
-                if (IPv4SrcAddr.HasValue || IPv4DstAddr.HasValue) flags ^= WinDivertConstants.WinDivertChecksumFlag.NoIPv4Checksum;
+                if (this.ipv4SrcAddr is IPv4Addr ipv4SrcAddr) p.IPv4Hdr->SrcAddr = ipv4SrcAddr;
+                if (this.ipv4DstAddr is IPv4Addr ipv4DstAddr) p.IPv4Hdr->DstAddr = ipv4DstAddr;
             }
             if (p.IPv6Hdr != null)
             {
-                if (IPv6SrcAddr is IPv6Addr ipv6SrcAddr) p.IPv6Hdr->SrcAddr = ipv6SrcAddr;
-                if (IPv6DstAddr is IPv6Addr ipv6DstAddr) p.IPv6Hdr->DstAddr = ipv6DstAddr;
+                if (this.ipv6SrcAddr is IPv6Addr ipv6SrcAddr) p.IPv6Hdr->SrcAddr = ipv6SrcAddr;
+                if (this.ipv6DstAddr is IPv6Addr ipv6DstAddr) p.IPv6Hdr->DstAddr = ipv6DstAddr;
             }
             if (p.TCPHdr != null)
             {
                 if (this.tcpSrcPort is ushort tcpSrcPort) p.TCPHdr->SrcPort = tcpSrcPort;
                 if (this.tcpDstPort is ushort tcpDstPort) p.TCPHdr->DstPort = tcpDstPort;
-                if (this.tcpSrcPort.HasValue || this.tcpDstPort.HasValue) flags ^= WinDivertConstants.WinDivertChecksumFlag.NoTCPChecksum;
             }
             if (p.UDPHdr != null)
             {
                 if (this.udpSrcPort is ushort udpSrcPort) p.UDPHdr->SrcPort = udpSrcPort;
                 if (this.udpDstPort is ushort udpDstPort) p.UDPHdr->DstPort = udpDstPort;
-                if (this.udpSrcPort.HasValue || this.udpDstPort.HasValue) flags ^= WinDivertConstants.WinDivertChecksumFlag.NoUDPChecksum;
             }
-            WinDivertHelper.CalcChecksums(p.Packet.Span, ref addr, flags);
+            WinDivertHelper.CalcChecksums(p.Packet.Span, ref addr, checksumFlag);
         }
 
         private unsafe void Log(WinDivertParseResult p, in WinDivertAddress addr)
@@ -349,6 +400,15 @@ namespace WinDivertNAT
             return value is ushort hport
                 ? WinDivertHelper.Hton(hport)
                 : null;
+        }
+
+        private WinDivertConstants.WinDivertChecksumFlag ChecksumFlag()
+        {
+            var flag = WinDivertConstants.WinDivertChecksumFlag.NoICMPv4Checksum | WinDivertConstants.WinDivertChecksumFlag.NoICMPv6Checksum;
+            if (!ipv4SrcAddr.HasValue && !ipv4DstAddr.HasValue) flag |= WinDivertConstants.WinDivertChecksumFlag.NoIPv4Checksum;
+            if (!tcpSrcPort.HasValue && !tcpDstPort.HasValue) flag |= WinDivertConstants.WinDivertChecksumFlag.NoTCPChecksum;
+            if (!udpSrcPort.HasValue && !udpDstPort.HasValue) flag |= WinDivertConstants.WinDivertChecksumFlag.NoUDPChecksum;
+            return flag;
         }
     }
 }
