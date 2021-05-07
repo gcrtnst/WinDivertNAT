@@ -234,7 +234,7 @@ namespace WinDivertNAT
 
             if (modify && !Drop) RunNormal(token);
             else if (Drop && Logger is null) RunDrop(token);
-            else if (Logger is not null) RunRecvOnly(!Drop, token);
+            else if (Logger is not null) RunRecvOnly(token);
             else RunNothing(token);
         }
 
@@ -284,10 +284,10 @@ namespace WinDivertNAT
             token.ThrowIfCancellationRequested();
         }
 
-        private void RunRecvOnly(bool sniff, CancellationToken token)
+        private void RunRecvOnly(CancellationToken token)
         {
             var flags = WinDivertConstants.WinDivertFlag.RecvOnly;
-            if (sniff) flags |= WinDivertConstants.WinDivertFlag.Sniff;
+            if (!Drop) flags |= WinDivertConstants.WinDivertFlag.Sniff;
 
             using var divert = new WinDivert(Filter.Span, WinDivertConstants.WinDivertLayer.Network, priority, flags)
             {
