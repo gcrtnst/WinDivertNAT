@@ -267,6 +267,12 @@ namespace WinDivertNAT
 
         private unsafe void ModifyPacket(WinDivertParseResult p, ref WinDivertAddress addr)
         {
+            var flags = WinDivertConstants.WinDivertChecksumFlag.NoIPv4Checksum
+                | WinDivertConstants.WinDivertChecksumFlag.NoICMPv4Checksum
+                | WinDivertConstants.WinDivertChecksumFlag.NoICMPv6Checksum
+                | WinDivertConstants.WinDivertChecksumFlag.NoTCPChecksum
+                | WinDivertConstants.WinDivertChecksumFlag.NoUDPChecksum;
+
             if (Outbound is bool outbound) addr.Outbound = outbound;
             if (IfIdx is uint ifIdx) addr.Network.IfIdx = ifIdx;
             if (SubIfIdx is uint subIfIdx) addr.Network.SubIfIdx = subIfIdx;
@@ -274,6 +280,7 @@ namespace WinDivertNAT
             {
                 if (IPv4SrcAddr is IPv4Addr ipv4SrcAddr) p.IPv4Hdr->SrcAddr = ipv4SrcAddr;
                 if (IPv4DstAddr is IPv4Addr ipv4DstAddr) p.IPv4Hdr->DstAddr = ipv4DstAddr;
+                if (IPv4SrcAddr.HasValue || IPv4DstAddr.HasValue) flags ^= WinDivertConstants.WinDivertChecksumFlag.NoIPv4Checksum;
             }
             if (p.IPv6Hdr != null)
             {
@@ -284,13 +291,15 @@ namespace WinDivertNAT
             {
                 if (this.tcpSrcPort is ushort tcpSrcPort) p.TCPHdr->SrcPort = tcpSrcPort;
                 if (this.tcpDstPort is ushort tcpDstPort) p.TCPHdr->DstPort = tcpDstPort;
+                if (this.tcpSrcPort.HasValue || this.tcpDstPort.HasValue) flags ^= WinDivertConstants.WinDivertChecksumFlag.NoTCPChecksum;
             }
             if (p.UDPHdr != null)
             {
                 if (this.udpSrcPort is ushort udpSrcPort) p.UDPHdr->SrcPort = udpSrcPort;
                 if (this.udpDstPort is ushort udpDstPort) p.UDPHdr->DstPort = udpDstPort;
+                if (this.udpSrcPort.HasValue || this.udpDstPort.HasValue) flags ^= WinDivertConstants.WinDivertChecksumFlag.NoUDPChecksum;
             }
-            WinDivertHelper.CalcChecksums(p.Packet.Span, ref addr, 0);
+            WinDivertHelper.CalcChecksums(p.Packet.Span, ref addr, flags);
         }
 
         private unsafe void Log(WinDivertParseResult p, in WinDivertAddress addr)
