@@ -42,6 +42,12 @@ namespace WinDivertNAT
     {
         internal uint Raw;
 
+        public static IPv4Addr Parse(string addrStr) => WinDivertLow.WinDivertHelperParseIPv4Address(addrStr);
+        public override string ToString() => WinDivertLow.WinDivertHelperFormatIPv4Address(this);
+
+        public static bool operator ==(IPv4Addr left, IPv4Addr right) => left.Equals(right);
+        public static bool operator !=(IPv4Addr left, IPv4Addr right) => !left.Equals(right);
+
         public bool Equals(IPv4Addr addr) => Raw == addr.Raw;
 
         public override bool Equals(object? obj)
@@ -51,15 +57,18 @@ namespace WinDivertNAT
         }
 
         public override int GetHashCode() => base.GetHashCode();
-
-        public static bool operator ==(IPv4Addr left, IPv4Addr right) => left.Equals(right);
-        public static bool operator !=(IPv4Addr left, IPv4Addr right) => !left.Equals(right);
     }
 
     [StructLayout(LayoutKind.Sequential)]
     public unsafe struct IPv6Addr : IEquatable<IPv6Addr>
     {
         internal fixed uint Raw[4];
+
+        public static IPv6Addr Parse(string addrStr) => WinDivertLow.WinDivertHelperParseIPv6Address(addrStr);
+        public override string ToString() => WinDivertLow.WinDivertHelperFormatIPv6Address(this);
+
+        public static bool operator ==(IPv6Addr left, IPv6Addr right) => left.Equals(right);
+        public static bool operator !=(IPv6Addr left, IPv6Addr right) => !left.Equals(right);
 
         public bool Equals(IPv6Addr addr)
         {
@@ -76,8 +85,5 @@ namespace WinDivertNAT
         }
 
         public override int GetHashCode() => base.GetHashCode();
-
-        public static bool operator ==(IPv6Addr left, IPv6Addr right) => left.Equals(right);
-        public static bool operator !=(IPv6Addr left, IPv6Addr right) => !left.Equals(right);
     }
 }
