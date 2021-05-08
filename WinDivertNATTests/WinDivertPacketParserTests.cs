@@ -95,7 +95,7 @@ namespace WinDivertNATTests
             Assert.IsTrue(recv.Span[packetOff1..packetOff2] == parseList[1].Packet.Span);
             Assert.IsTrue(recv.Span[packetOff2..] == parseList[2].Packet.Span);
 
-            var localhost = WinDivertHelper.ParseIPv4Address("127.0.0.1");
+            var localhost = IPv4Addr.Parse("127.0.0.1");
             var protocol = (byte)17;
             Assert.IsTrue(parseList[0].IPv4Hdr != null);
             Assert.IsTrue(parseList[1].IPv4Hdr != null);

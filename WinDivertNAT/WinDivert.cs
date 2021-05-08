@@ -88,10 +88,6 @@ namespace WinDivertNAT
 
     public static class WinDivertHelper
     {
-        public static IPv4Addr ParseIPv4Address(string addrStr) => WinDivertLow.WinDivertHelperParseIPv4Address(addrStr);
-        public static IPv6Addr ParseIPv6Address(string addrStr) => WinDivertLow.WinDivertHelperParseIPv6Address(addrStr);
-        public static string FormatIPv4Address(IPv4Addr addr) => WinDivertLow.WinDivertHelperFormatIPv4Address(addr);
-        public static string FormatIPv6Address(IPv6Addr addr) => WinDivertLow.WinDivertHelperFormatIPv6Address(addr);
         public static void CalcChecksums(Span<byte> packet, ref WinDivertAddress addr, WinDivertConstants.WinDivertChecksumFlag flags) => WinDivertLow.WinDivertHelperCalcChecksums(packet, ref addr, flags);
         public static ReadOnlyMemory<byte> CompileFilter(string filter, WinDivertConstants.WinDivertLayer layer) => WinDivertLow.WinDivertHelperCompileFilter(filter, layer);
         public static ushort Ntoh(ushort x) => NativeMethods.WinDivertHelperNtohs(x);

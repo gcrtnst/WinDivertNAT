@@ -312,13 +312,13 @@ namespace WinDivertNAT
                 };
                 if (p.IPv4Hdr != null)
                 {
-                    l.Add($"IPv4SrcAddr={WinDivertHelper.FormatIPv4Address(p.IPv4Hdr->SrcAddr)}");
-                    l.Add($"IPv4DstAddr={WinDivertHelper.FormatIPv4Address(p.IPv4Hdr->DstAddr)}");
+                    l.Add($"IPv4SrcAddr={p.IPv4Hdr->SrcAddr}");
+                    l.Add($"IPv4DstAddr={p.IPv4Hdr->DstAddr}");
                 }
                 if (p.IPv6Hdr != null)
                 {
-                    l.Add($"IPv6SrcAddr={WinDivertHelper.FormatIPv6Address(p.IPv6Hdr->SrcAddr)}");
-                    l.Add($"IPv6DstAddr={WinDivertHelper.FormatIPv6Address(p.IPv6Hdr->DstAddr)}");
+                    l.Add($"IPv6SrcAddr={p.IPv6Hdr->SrcAddr}");
+                    l.Add($"IPv6DstAddr={p.IPv6Hdr->DstAddr}");
                 }
                 if (p.TCPHdr != null)
                 {
