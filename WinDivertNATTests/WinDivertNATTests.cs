@@ -50,6 +50,40 @@ namespace WinDivertNATTests
         [DataRow(false, true)]
         [DataRow(true, false)]
         [DataRow(true, true)]
+        public async Task Run_DropEnabled_Drop(bool modify, bool log)
+        {
+            const int port = 52149;
+            var outbound = (bool?)null;
+            if (modify) outbound = true;
+            var logger = (TextWriter?)null;
+            if (log) logger = new StringWriter();
+            var remoteEP = new IPEndPoint(IPAddress.Any, 0);
+
+            var nat = new WinDivertNAT.WinDivertNAT($"udp.DstPort == {port} and loopback")
+            {
+                Outbound = outbound,
+                Drop = true,
+                Logger = logger,
+            };
+            using var cancel = new CancellationTokenSource();
+            var task = Task.Run(() => nat.Run(cancel.Token));
+            await Task.Delay(250);
+
+            using var udps = new UdpClient(new IPEndPoint(IPAddress.Loopback, port));
+            using (var udpc = new UdpClient("127.0.0.1", port)) _ = udpc.Send(new byte[1], 1);
+            udps.Client.ReceiveTimeout = 250;
+            var e = Assert.ThrowsException<SocketException>(() => _ = udps.Receive(ref remoteEP));
+            Assert.AreEqual(SocketError.TimedOut, e.SocketErrorCode);
+
+            cancel.Cancel();
+            _ = await Assert.ThrowsExceptionAsync<OperationCanceledException>(() => task);
+        }
+
+        [TestMethod]
+        [DataRow(false, false)]
+        [DataRow(false, true)]
+        [DataRow(true, false)]
+        [DataRow(true, true)]
         public async Task Run_LogEnabled_Log(bool modify, bool drop)
         {
             const int port = 52149;
