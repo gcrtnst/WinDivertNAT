@@ -43,7 +43,7 @@ namespace WinDivertNAT
     {
         private static int Main(string[] args)
         {
-            var filter = "";
+            var filter = ReadOnlyMemory<byte>.Empty;
             var priority = (short)0;
             var queueLength = (ulong)4096;
             var queueTime = (ulong)2000;
@@ -66,7 +66,7 @@ namespace WinDivertNAT
             var help = false;
             var p = new OptionSet()
             {
-                { "f|filter=", (string v) => filter = v },
+                { "f|filter=", (string v) => filter = OptionFilter(v, "--filter") },
                 { "p|priority=", (short v) => priority = OptionBoundsCheck(v, (short)-30000, (short)30000, "--priority") },
                 { "queue-length=", (ulong v) => queueLength = OptionBoundsCheck(v, (ulong)32, (ulong)16384, "--queue-length") },
                 { "queue-time=", (ulong v) => queueTime = OptionBoundsCheck(v, (ulong)100, (ulong)16000, "--queue-time") },
@@ -107,7 +107,7 @@ namespace WinDivertNAT
                 p.WriteOptionDescriptions(Console.Out);
                 return 0;
             }
-            if (filter == "")
+            if (filter.IsEmpty)
             {
                 Console.Error.WriteLine($"{AppDomain.CurrentDomain.FriendlyName}: Option --filter is required.");
                 return 1;
@@ -152,6 +152,20 @@ namespace WinDivertNAT
             }
             catch (OperationCanceledException) { }
             return 0;
+        }
+
+        private static ReadOnlyMemory<byte> OptionFilter(string v, string optionName)
+        {
+            ReadOnlyMemory<byte> fobj;
+            try
+            {
+                fobj = WinDivertHelper.CompileFilter(v, WinDivertConstants.WinDivertLayer.Network);
+            }
+            catch (WinDivertInvalidFilterException e)
+            {
+                throw new OptionException($"{e.FilterErrorStr} (at position {e.FilterErrorPos})", optionName);
+            }
+            return fobj;
         }
 
         private static T OptionBoundsCheck<T>(T v, T min, T max, string optionName) where T : IComparable<T>
