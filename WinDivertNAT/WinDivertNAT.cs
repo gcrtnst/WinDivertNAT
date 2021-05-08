@@ -40,7 +40,7 @@ using System.Threading;
 
 namespace WinDivertNAT
 {
-    internal class WinDivertNAT
+    public class WinDivertNAT
     {
         public readonly ReadOnlyMemory<byte> Filter;
         public short Priority = 0;

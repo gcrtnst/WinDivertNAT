@@ -33,11 +33,24 @@
  */
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace WinDivertNATTests
 {
     [TestClass]
     public class WinDivertNATTests
     {
+        [TestMethod]
+        public async Task Run_RunNothing_WaitForCancellation()
+        {
+            var nat = new WinDivertNAT.WinDivertNAT("false");
+            using var cancel = new CancellationTokenSource();
+            var task = Task.Run(() => nat.Run(cancel.Token));
+            Assert.IsTrue(await Task.WhenAny(task, Task.Delay(250)) != task);
+            cancel.Cancel();
+            _ = await Assert.ThrowsExceptionAsync<OperationCanceledException>(() => task);
+        }
     }
 }
