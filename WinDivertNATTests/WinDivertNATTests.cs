@@ -46,6 +46,34 @@ namespace WinDivertNATTests
     public class WinDivertNATTests
     {
         [TestMethod]
+        [DataRow(false)]
+        [DataRow(true)]
+        public async Task Run_ModifyEnabled_Modify(bool log)
+        {
+            const int port1 = 52149;
+            const int port2 = 52149 + 1;
+            var logger = (TextWriter?)null;
+            if (log) logger = new StringWriter();
+            var remoteEP = new IPEndPoint(IPAddress.Any, 0);
+
+            var nat = new WinDivertNAT.WinDivertNAT($"udp.DstPort == {port1} and loopback")
+            {
+                UDPDstPort = port2,
+                Logger = logger,
+            };
+            using var cancel = new CancellationTokenSource();
+            var task = Task.Run(() => nat.Run(cancel.Token));
+            await Task.Delay(250);
+
+            using var udps = new UdpClient(new IPEndPoint(IPAddress.Loopback, port2));
+            using (var udpc = new UdpClient("127.0.0.1", port1)) _ = udpc.Send(new byte[1], 1);
+            _ = udps.Receive(ref remoteEP);
+
+            cancel.Cancel();
+            _ = await Assert.ThrowsExceptionAsync<OperationCanceledException>(() => task);
+        }
+
+        [TestMethod]
         [DataRow(false, false)]
         [DataRow(false, true)]
         [DataRow(true, false)]
