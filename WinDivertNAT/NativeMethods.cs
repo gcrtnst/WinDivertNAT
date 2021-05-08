@@ -351,48 +351,4 @@ namespace WinDivertNAT
         public ushort Length;
         public ushort Checksum;
     }
-
-    [StructLayout(LayoutKind.Sequential)]
-    public struct IPv4Addr : IEquatable<IPv4Addr>
-    {
-        internal uint Raw;
-
-        public bool Equals(IPv4Addr addr) => Raw == addr.Raw;
-
-        public override bool Equals(object? obj)
-        {
-            if (obj is IPv4Addr ipv4Addr) return Equals(ipv4Addr);
-            return base.Equals(obj);
-        }
-
-        public override int GetHashCode() => base.GetHashCode();
-
-        public static bool operator ==(IPv4Addr left, IPv4Addr right) => left.Equals(right);
-        public static bool operator !=(IPv4Addr left, IPv4Addr right) => !left.Equals(right);
-    }
-
-    [StructLayout(LayoutKind.Sequential)]
-    public unsafe struct IPv6Addr : IEquatable<IPv6Addr>
-    {
-        internal fixed uint Raw[4];
-
-        public bool Equals(IPv6Addr addr)
-        {
-            return Raw[0] == addr.Raw[0]
-                && Raw[1] == addr.Raw[1]
-                && Raw[2] == addr.Raw[2]
-                && Raw[3] == addr.Raw[3];
-        }
-
-        public override bool Equals(object? obj)
-        {
-            if (obj is IPv6Addr ipv6Addr) return Equals(ipv6Addr);
-            return base.Equals(obj);
-        }
-
-        public override int GetHashCode() => base.GetHashCode();
-
-        public static bool operator ==(IPv6Addr left, IPv6Addr right) => left.Equals(right);
-        public static bool operator !=(IPv6Addr left, IPv6Addr right) => !left.Equals(right);
-    }
 }
