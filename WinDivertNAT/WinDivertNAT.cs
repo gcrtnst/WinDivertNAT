@@ -43,72 +43,12 @@ namespace WinDivertNAT
     internal class WinDivertNAT
     {
         public readonly ReadOnlyMemory<byte> Filter;
-
-        private short priority = 0;
-        public short Priority
-        {
-            get => priority;
-            init
-            {
-                if (value is < (-30000) or > 30000) throw new ArgumentOutOfRangeException(nameof(value));
-                priority = value;
-            }
-        }
-
-        private ulong queueLength = 4096;
-        public ulong QueueLength
-        {
-            get => queueLength;
-            init
-            {
-                if (value is < 32 or > 16384) throw new ArgumentOutOfRangeException(nameof(value));
-                queueLength = value;
-            }
-        }
-
-        private ulong queueTime = 2000;
-        public ulong QueueTime
-        {
-            get => queueTime;
-            init
-            {
-                if (value is < 100 or > 16000) throw new ArgumentOutOfRangeException(nameof(value));
-                queueTime = value;
-            }
-        }
-
-        private ulong queueSize = 4194304;
-        public ulong QueueSize
-        {
-            get => queueSize;
-            init
-            {
-                if (value is < 65535 or > 33554432) throw new ArgumentOutOfRangeException(nameof(value));
-                queueSize = value;
-            }
-        }
-
-        private int bufLength = 255;
-        public int BufLength
-        {
-            get => bufLength;
-            init
-            {
-                if (value is < 1 or > 255) throw new ArgumentOutOfRangeException(nameof(value));
-                bufLength = value;
-            }
-        }
-
-        private int bufSize = 131072;
-        public int BufSize
-        {
-            get => bufSize;
-            init
-            {
-                if (value is < 65535 or > 33554432) throw new ArgumentOutOfRangeException(nameof(value));
-                bufSize = value;
-            }
-        }
+        public short Priority = 0;
+        public ulong QueueLength = 4096;
+        public ulong QueueTime = 2000;
+        public ulong QueueSize = 4194304;
+        public int BufLength = 255;
+        public int BufSize = 131072;
 
         public bool Drop { get; init; } = false;
         public bool? Outbound { get; init; } = null;
@@ -242,15 +182,15 @@ namespace WinDivertNAT
 
         private void RunNormal(CancellationToken token)
         {
-            using var divert = new WinDivert(Filter.Span, WinDivertConstants.WinDivertLayer.Network, priority, 0)
+            using var divert = new WinDivert(Filter.Span, WinDivertConstants.WinDivertLayer.Network, Priority, 0)
             {
-                QueueLength = queueLength,
-                QueueTime = queueTime,
-                QueueSize = queueSize,
+                QueueLength = QueueLength,
+                QueueTime = QueueTime,
+                QueueSize = QueueSize,
             };
 
-            var packet = new Memory<byte>(new byte[bufSize]);
-            var abuf = new Memory<WinDivertAddress>(new WinDivertAddress[bufLength]);
+            var packet = new Memory<byte>(new byte[BufSize]);
+            var abuf = new Memory<WinDivertAddress>(new WinDivertAddress[BufLength]);
             using var reg = token.Register(() => divert.ShutdownRecv());
             while (true)
             {
@@ -283,15 +223,15 @@ namespace WinDivertNAT
             var flags = WinDivertConstants.WinDivertFlag.RecvOnly;
             if (!Drop) flags |= WinDivertConstants.WinDivertFlag.Sniff;
 
-            using var divert = new WinDivert(Filter.Span, WinDivertConstants.WinDivertLayer.Network, priority, flags)
+            using var divert = new WinDivert(Filter.Span, WinDivertConstants.WinDivertLayer.Network, Priority, flags)
             {
-                QueueLength = queueLength,
-                QueueTime = queueTime,
-                QueueSize = queueSize,
+                QueueLength = QueueLength,
+                QueueTime = QueueTime,
+                QueueSize = QueueSize,
             };
 
-            var packet = new Memory<byte>(new byte[bufSize]);
-            var abuf = new Memory<WinDivertAddress>(new WinDivertAddress[bufLength]);
+            var packet = new Memory<byte>(new byte[BufSize]);
+            var abuf = new Memory<WinDivertAddress>(new WinDivertAddress[BufLength]);
             using var reg = token.Register(() => divert.Shutdown());
             while (true)
             {
@@ -315,7 +255,7 @@ namespace WinDivertNAT
 
         private void RunDrop(CancellationToken token)
         {
-            using var divert = new WinDivert(Filter.Span, WinDivertConstants.WinDivertLayer.Network, priority, WinDivertConstants.WinDivertFlag.Drop | WinDivertConstants.WinDivertFlag.RecvOnly);
+            using var divert = new WinDivert(Filter.Span, WinDivertConstants.WinDivertLayer.Network, Priority, WinDivertConstants.WinDivertFlag.Drop | WinDivertConstants.WinDivertFlag.RecvOnly);
             _ = token.WaitHandle.WaitOne();
             divert.Shutdown();
             token.ThrowIfCancellationRequested();
