@@ -52,7 +52,7 @@ namespace WinDivertNATTests
         [DataRow(true, false, true)]
         [DataRow(true, true, false)]
         [DataRow(true, true, true)]
-        public async Task Run_ValidParams_WaitForCancellation(bool modify, bool drop, bool log)
+        public async Task Run_All_WaitForCancellation(bool modify, bool drop, bool log)
         {
             var outbound = (bool?)null;
             if (modify) outbound = true;
