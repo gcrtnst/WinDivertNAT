@@ -361,7 +361,7 @@ namespace WinDivertNAT
 
         public override bool Equals(object? obj)
         {
-            if (obj is IPv4Addr) return Equals(obj);
+            if (obj is IPv4Addr ipv4Addr) return Equals(ipv4Addr);
             return base.Equals(obj);
         }
 
@@ -386,7 +386,7 @@ namespace WinDivertNAT
 
         public override bool Equals(object? obj)
         {
-            if (obj is IPv6Addr) return Equals(obj);
+            if (obj is IPv6Addr ipv6Addr) return Equals(ipv6Addr);
             return base.Equals(obj);
         }
 
