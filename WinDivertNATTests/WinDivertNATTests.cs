@@ -34,6 +34,7 @@
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
+using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -43,9 +44,27 @@ namespace WinDivertNATTests
     public class WinDivertNATTests
     {
         [TestMethod]
-        public async Task Run_RunNothing_WaitForCancellation()
+        [DataRow(false, false, false)]
+        [DataRow(false, false, true)]
+        [DataRow(false, true, false)]
+        [DataRow(false, true, true)]
+        [DataRow(true, false, false)]
+        [DataRow(true, false, true)]
+        [DataRow(true, true, false)]
+        [DataRow(true, true, true)]
+        public async Task Run_ValidParams_WaitForCancellation(bool modify, bool drop, bool log)
         {
-            var nat = new WinDivertNAT.WinDivertNAT("false");
+            var outbound = (bool?)null;
+            if (modify) outbound = true;
+            var logger = (TextWriter?)null;
+            if (log) logger = new StringWriter();
+
+            var nat = new WinDivertNAT.WinDivertNAT("false")
+            {
+                Outbound = outbound,
+                Drop = drop,
+                Logger = logger,
+            };
             using var cancel = new CancellationTokenSource();
             var task = Task.Run(() => nat.Run(cancel.Token));
             Assert.IsTrue(await Task.WhenAny(task, Task.Delay(250)) != task);
