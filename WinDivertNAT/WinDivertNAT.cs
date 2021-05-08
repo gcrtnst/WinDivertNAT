@@ -47,8 +47,8 @@ namespace WinDivertNAT
         public ulong QueueLength = 4096;
         public ulong QueueTime = 2000;
         public ulong QueueSize = 4194304;
-        public int BufLength = 255;
-        public int BufSize = 131072;
+        public int BufLength = 1;
+        public int BufSize = 40 + 0xFFFF;
 
         public bool Drop { get; init; } = false;
         public bool? Outbound { get; init; } = null;
