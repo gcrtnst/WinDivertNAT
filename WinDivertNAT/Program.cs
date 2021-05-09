@@ -163,7 +163,7 @@ namespace WinDivertNAT
             }
             catch (WinDivertInvalidFilterException e)
             {
-                throw new OptionException($"{e.FilterErrorStr} (at position {e.FilterErrorPos})", optionName);
+                throw new OptionException($"{e.FilterErrorStr} (at position {e.FilterErrorPos})", optionName, e);
             }
             return fobj;
         }
