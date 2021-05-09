@@ -146,13 +146,12 @@ namespace WinDivertNAT
                     token.ThrowIfCancellationRequested();
                     return;
                 }
-                LogBatch(recvLen, addrLen);
 
                 var recv = packet[0..(int)recvLen];
                 var addr = abuf[0..(int)addrLen];
                 foreach (var (i, p) in new WinDivertIndexedPacketParser(recv))
                 {
-                    LogPacket(p, in addr.Span[i]);
+                    Log(p, in addr.Span[i]);
                     ModifyPacket(p, ref addr.Span[i]);
                 }
                 _ = divert.SendEx(recv.Span, addr.Span);
@@ -187,11 +186,10 @@ namespace WinDivertNAT
                     token.ThrowIfCancellationRequested();
                     return;
                 }
-                LogBatch(recvLen, addrLen);
 
                 var recv = packet[0..(int)recvLen];
                 var addr = abuf[0..(int)addrLen];
-                foreach (var (i, p) in new WinDivertIndexedPacketParser(recv)) LogPacket(p, in addr.Span[i]);
+                foreach (var (i, p) in new WinDivertIndexedPacketParser(recv)) Log(p, in addr.Span[i]);
             }
         }
 
@@ -237,9 +235,7 @@ namespace WinDivertNAT
             WinDivertHelper.CalcChecksums(p.Packet.Span, ref addr, 0);
         }
 
-        private void LogBatch(uint recvLen, uint addrLen) => Logger?.WriteLine($"Time={DateTime.UtcNow:O} RecvLength={addrLen} RecvSize={recvLen}");
-
-        private unsafe void LogPacket(WinDivertParseResult p, in WinDivertAddress addr)
+        private unsafe void Log(WinDivertParseResult p, in WinDivertAddress addr)
         {
             if (Logger is not null)
             {
