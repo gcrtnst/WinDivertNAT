@@ -176,8 +176,8 @@ namespace WinDivertNAT
 
         private static bool OptionOutbound(string v, string optionName)
         {
-            if (v.Equals("inbound", StringComparison.OrdinalIgnoreCase)) return false;
-            if (v.Equals("outbound", StringComparison.OrdinalIgnoreCase)) return true;
+            if (v == "inbound") return false;
+            if (v == "outbound") return true;
             throw new OptionException($"Invalid value '{v}' for option '{optionName}'.", optionName);
         }
 
