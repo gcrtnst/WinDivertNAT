@@ -74,7 +74,7 @@ namespace WinDivertNAT
                 { "buf-length=", (int v) => bufLength = OptionBoundsCheck(v, 1, 0xFF, "--buf-length") },
                 { "buf-size=", (int v) => bufSize = OptionBoundsCheck(v, 40 + 0xFFFF, 33554432, "--buf-size") },
                 { "drop", (string v) => drop = v is not null },
-                { "outbound", (string v) => outbound = v is not null },
+                { "direction=", (string v) => outbound = OptionOutbound(v, "--direction") },
                 { "ifidx=", (uint v) => ifIdx = v },
                 { "subifidx=", (uint v) => subIfIdx = v },
                 { "ipv4-src-addr=", (string v) => ipv4SrcAddr = OptionIPv4Addr(v, "--ipv4-src-addr") },
@@ -172,6 +172,13 @@ namespace WinDivertNAT
         {
             if (v.CompareTo(min) < 0 || v.CompareTo(max) > 0) throw new OptionException($"Value must be between {min} and {max} for option '{optionName}'.", optionName);
             return v;
+        }
+
+        private static bool OptionOutbound(string v, string optionName)
+        {
+            if (v.Equals("inbound", StringComparison.OrdinalIgnoreCase)) return false;
+            if (v.Equals("outbound", StringComparison.OrdinalIgnoreCase)) return true;
+            throw new OptionException($"Invalid value '{v}' for option '{optionName}'.", optionName);
         }
 
         private static IPv4Addr OptionIPv4Addr(string v, string optionName)
