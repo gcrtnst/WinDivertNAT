@@ -107,14 +107,14 @@ namespace WinDivertNAT
                 p.WriteOptionDescriptions(Console.Out);
                 return 0;
             }
-            if (filter.IsEmpty)
-            {
-                Console.Error.WriteLine($"{AppDomain.CurrentDomain.FriendlyName}: Option --filter is required.");
-                return 1;
-            }
             if (extra.Count > 0)
             {
                 Console.Error.WriteLine($"{AppDomain.CurrentDomain.FriendlyName}: Unrecognized argument '{extra[0]}'.");
+                return 1;
+            }
+            if (filter.IsEmpty)
+            {
+                Console.Error.WriteLine($"{AppDomain.CurrentDomain.FriendlyName}: Option --filter is required.");
                 return 1;
             }
 
