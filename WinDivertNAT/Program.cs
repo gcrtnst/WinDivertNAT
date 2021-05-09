@@ -96,7 +96,7 @@ namespace WinDivertNAT
             }
             catch (OptionException e)
             {
-                Console.Error.WriteLine($"{AppDomain.CurrentDomain.FriendlyName}: {e.Message}");
+                Console.Error.WriteLine($"Error: {e.Message}");
                 return 1;
             }
             if (help)
@@ -109,12 +109,12 @@ namespace WinDivertNAT
             }
             if (extra.Count > 0)
             {
-                Console.Error.WriteLine($"{AppDomain.CurrentDomain.FriendlyName}: Unrecognized argument '{extra[0]}'.");
+                Console.Error.WriteLine($"Error: Unrecognized argument '{extra[0]}'.");
                 return 1;
             }
             if (filter.IsEmpty)
             {
-                Console.Error.WriteLine($"{AppDomain.CurrentDomain.FriendlyName}: Option --filter is required.");
+                Console.Error.WriteLine($"Error: Option --filter is required.");
                 return 1;
             }
 
