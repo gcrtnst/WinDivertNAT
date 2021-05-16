@@ -12,6 +12,7 @@ WinDivertNAT は、gcrtnst が WinDivert の使い方を学ぶために作成し
 ## インストール
 **警告：WinDivertNAT を構成するファイルは管理者権限が無い限り書き換えられないようにしてください。標準ユーザーが書き換えられるようになっている場合、権限昇格の脆弱性になります。**
 
+1. .NET Runtime 5.0.6 またはそれ以降のバージョンの .NET Runtime をインストールしてください。
 1. WinDivertNAT のバイナリを PC 内に配置してください。
 1. WinDivertNAT の実行可能ファイルと同じ場所に、WinDivert 2.X のバイナリファイルを配置してください。お使いの Windows が 32-bit であれば、WinDivert.dll (32-bit 版)と WinDivert32.sys を配置してください。64-bit の場合は、WinDivert.dll (64-bit 版)と WinDivert64.sys を配置してください。[WinDivert のダウンロードはこちら。](https://reqrypt.org/windivert.html)
 
