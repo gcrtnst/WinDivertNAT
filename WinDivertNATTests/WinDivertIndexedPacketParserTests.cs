@@ -43,21 +43,26 @@ namespace WinDivertNATTests
     [TestClass]
     public class WinDivertIndexedPacketParserTests
     {
-        private readonly int port;
+        private const int port1 = 52149;
+        private const int port2 = 52150;
         private readonly Memory<byte> recv;
 
         public WinDivertIndexedPacketParserTests()
         {
-            port = 52149;
-            var send = new Memory<byte>(new byte[] { 0, 1, 2 });
-            var packet = new Memory<byte>(new byte[131072]);
-            var abuf = (Span<WinDivertAddress>)stackalloc WinDivertAddress[127];
-            using var divert = new WinDivert($"udp.DstPort == {port} and loopback", WinDivertConstants.WinDivertLayer.Network, 0, WinDivertConstants.WinDivertFlag.Sniff | WinDivertConstants.WinDivertFlag.RecvOnly);
-            using var udps = new UdpClient(new IPEndPoint(IPAddress.Loopback, port));
-            using var udpc = new UdpClient("127.0.0.1", port);
-            _ = udpc.Send(send.ToArray(), 1);
-            _ = udpc.Send(send.ToArray(), 2);
-            _ = udpc.Send(send.ToArray(), 3);
+            var send = new byte[] { 0, 1, 2 };
+            var packet = new Memory<byte>(new byte[0xFF * 3]);
+            var abuf = (Span<WinDivertAddress>)stackalloc WinDivertAddress[3];
+
+            using var sender = new UdpClient(new IPEndPoint(IPAddress.Loopback, port1));
+            sender.Connect(IPAddress.Loopback, port2);
+
+            using var receiver = new UdpClient(new IPEndPoint(IPAddress.Loopback, port2));
+            receiver.Connect(IPAddress.Loopback, port1);
+
+            using var divert = new WinDivert($"udp.SrcPort == {port1} and udp.DstPort == {port2} and loopback", WinDivert.Layer.Network, 0, WinDivert.Flag.Sniff | WinDivert.Flag.RecvOnly);
+            _ = sender.Send(send, 1);
+            _ = sender.Send(send, 2);
+            _ = sender.Send(send, 3);
 
             var recvOff = 0;
             var addrOff = 0;
@@ -67,35 +72,28 @@ namespace WinDivertNATTests
                 recvOff += (int)recvLen;
                 addrOff += (int)addrLen;
             }
-            recv = packet[0..recvOff];
+            recv = packet[..recvOff];
         }
 
         [TestMethod]
-        public void MoveNext_Call_ReturnBool()
+        public void MoveNext()
         {
             using var enumerator = new WinDivertIndexedPacketParser(recv).GetEnumerator();
             Assert.IsTrue(enumerator.MoveNext());
-            Assert.IsTrue(enumerator.MoveNext());
-            Assert.IsTrue(enumerator.MoveNext());
-            Assert.IsFalse(enumerator.MoveNext());
-            Assert.IsFalse(enumerator.MoveNext());
-        }
-
-        [TestMethod]
-        public unsafe void MoveNext_Call_SetCurrent()
-        {
-            using var enumerator = new WinDivertIndexedPacketParser(recv).GetEnumerator();
-            _ = enumerator.MoveNext();
             Assert.AreEqual(0, enumerator.Current.Item1);
             Assert.AreEqual<byte>(17, enumerator.Current.Item2.Protocol);
-            _ = enumerator.MoveNext();
+            Assert.IsTrue(enumerator.MoveNext());
             Assert.AreEqual(1, enumerator.Current.Item1);
-            _ = enumerator.MoveNext();
+            Assert.AreEqual<byte>(17, enumerator.Current.Item2.Protocol);
+            Assert.IsTrue(enumerator.MoveNext());
             Assert.AreEqual(2, enumerator.Current.Item1);
+            Assert.AreEqual<byte>(17, enumerator.Current.Item2.Protocol);
+            Assert.IsFalse(enumerator.MoveNext());
+            Assert.IsFalse(enumerator.MoveNext());
         }
 
         [TestMethod]
-        public void Reset_Call_Reset()
+        public void Reset()
         {
             using var enumerator = new WinDivertIndexedPacketParser(recv).GetEnumerator();
             _ = enumerator.MoveNext();

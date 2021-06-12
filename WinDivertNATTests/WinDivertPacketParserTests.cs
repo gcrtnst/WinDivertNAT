@@ -44,21 +44,26 @@ namespace WinDivertNATTests
     [TestClass]
     public class WinDivertPacketParserTests
     {
-        private readonly int port;
+        private const int port1 = 52149;
+        private const int port2 = 52150;
         private readonly Memory<byte> recv;
 
         public WinDivertPacketParserTests()
         {
-            port = 52149;
-            var send = new Memory<byte>(new byte[] { 0, 1, 2 });
-            var packet = new Memory<byte>(new byte[131072]);
-            var abuf = (Span<WinDivertAddress>)stackalloc WinDivertAddress[127];
-            using var divert = new WinDivert($"udp.DstPort == {port} and loopback", WinDivertConstants.WinDivertLayer.Network, 0, WinDivertConstants.WinDivertFlag.Sniff | WinDivertConstants.WinDivertFlag.RecvOnly);
-            using var udps = new UdpClient(new IPEndPoint(IPAddress.Loopback, port));
-            using var udpc = new UdpClient("127.0.0.1", port);
-            _ = udpc.Send(send.ToArray(), 1);
-            _ = udpc.Send(send.ToArray(), 2);
-            _ = udpc.Send(send.ToArray(), 3);
+            var send = new byte[] { 0, 1, 2 };
+            var packet = new Memory<byte>(new byte[0xFF * 3]);
+            var abuf = (Span<WinDivertAddress>)stackalloc WinDivertAddress[3];
+
+            using var sender = new UdpClient(new IPEndPoint(IPAddress.Loopback, port1));
+            sender.Connect(IPAddress.Loopback, port2);
+
+            using var receiver = new UdpClient(new IPEndPoint(IPAddress.Loopback, port2));
+            receiver.Connect(IPAddress.Loopback, port1);
+
+            using var divert = new WinDivert($"udp.SrcPort == {port1} and udp.DstPort == {port2} and loopback", WinDivert.Layer.Network, 0, WinDivert.Flag.Sniff | WinDivert.Flag.RecvOnly);
+            _ = sender.Send(send, 1);
+            _ = sender.Send(send, 2);
+            _ = sender.Send(send, 3);
 
             var recvOff = 0;
             var addrOff = 0;
@@ -68,11 +73,11 @@ namespace WinDivertNATTests
                 recvOff += (int)recvLen;
                 addrOff += (int)addrLen;
             }
-            recv = packet[0..recvOff];
+            recv = packet[..recvOff];
         }
 
         [TestMethod]
-        public void MoveNext_Call_ReturnBool()
+        public void MoveNext_TestReturnValue()
         {
             using var enumerator = new WinDivertPacketParser(recv).GetEnumerator();
             Assert.IsTrue(enumerator.MoveNext());
@@ -83,7 +88,7 @@ namespace WinDivertNATTests
         }
 
         [TestMethod]
-        public unsafe void MoveNext_Call_SetCurrent()
+        public unsafe void MoveNext_TestCurrent()
         {
             using var hmem = recv.Pin();
             var parseList = new List<WinDivertParseResult>(new WinDivertPacketParser(recv));
@@ -95,23 +100,23 @@ namespace WinDivertNATTests
             Assert.IsTrue(recv.Span[packetOff1..packetOff2] == parseList[1].Packet.Span);
             Assert.IsTrue(recv.Span[packetOff2..] == parseList[2].Packet.Span);
 
-            var localhost = IPv4Addr.Parse("127.0.0.1");
+            var localhost = (NetworkIPv4Addr)IPv4Addr.Parse("127.0.0.1");
             var protocol = (byte)17;
             Assert.IsTrue(parseList[0].IPv4Hdr != null);
             Assert.IsTrue(parseList[1].IPv4Hdr != null);
             Assert.IsTrue(parseList[2].IPv4Hdr != null);
-            Assert.AreEqual(WinDivertHelper.Hton((ushort)parseList[0].Packet.Length), parseList[0].IPv4Hdr->Length);
-            Assert.AreEqual(WinDivertHelper.Hton((ushort)parseList[1].Packet.Length), parseList[1].IPv4Hdr->Length);
-            Assert.AreEqual(WinDivertHelper.Hton((ushort)parseList[2].Packet.Length), parseList[2].IPv4Hdr->Length);
+            Assert.AreEqual(parseList[0].Packet.Length, parseList[0].IPv4Hdr->Length);
+            Assert.AreEqual(parseList[1].Packet.Length, parseList[1].IPv4Hdr->Length);
+            Assert.AreEqual(parseList[2].Packet.Length, parseList[2].IPv4Hdr->Length);
             Assert.AreEqual(protocol, parseList[0].IPv4Hdr->Protocol);
             Assert.AreEqual(protocol, parseList[1].IPv4Hdr->Protocol);
             Assert.AreEqual(protocol, parseList[2].IPv4Hdr->Protocol);
-            Assert.IsTrue(localhost == parseList[0].IPv4Hdr->SrcAddr);
-            Assert.IsTrue(localhost == parseList[1].IPv4Hdr->SrcAddr);
-            Assert.IsTrue(localhost == parseList[2].IPv4Hdr->SrcAddr);
-            Assert.IsTrue(localhost == parseList[0].IPv4Hdr->DstAddr);
-            Assert.IsTrue(localhost == parseList[1].IPv4Hdr->DstAddr);
-            Assert.IsTrue(localhost == parseList[2].IPv4Hdr->DstAddr);
+            Assert.AreEqual(localhost, parseList[0].IPv4Hdr->SrcAddr);
+            Assert.AreEqual(localhost, parseList[1].IPv4Hdr->SrcAddr);
+            Assert.AreEqual(localhost, parseList[2].IPv4Hdr->SrcAddr);
+            Assert.AreEqual(localhost, parseList[0].IPv4Hdr->DstAddr);
+            Assert.AreEqual(localhost, parseList[1].IPv4Hdr->DstAddr);
+            Assert.AreEqual(localhost, parseList[2].IPv4Hdr->DstAddr);
 
             Assert.IsTrue(parseList[0].IPv6Hdr == null);
             Assert.IsTrue(parseList[1].IPv6Hdr == null);
@@ -133,16 +138,18 @@ namespace WinDivertNATTests
             Assert.IsTrue(parseList[1].TCPHdr == null);
             Assert.IsTrue(parseList[2].TCPHdr == null);
 
-            var nport = WinDivertHelper.Hton((ushort)port);
             Assert.IsTrue(parseList[0].UDPHdr != null);
             Assert.IsTrue(parseList[1].UDPHdr != null);
             Assert.IsTrue(parseList[2].UDPHdr != null);
-            Assert.AreEqual(nport, parseList[0].UDPHdr->DstPort);
-            Assert.AreEqual(nport, parseList[1].UDPHdr->DstPort);
-            Assert.AreEqual(nport, parseList[2].UDPHdr->DstPort);
-            Assert.AreEqual(WinDivertHelper.Hton((ushort)(parseList[0].Data.Length + 8)), parseList[0].UDPHdr->Length);
-            Assert.AreEqual(WinDivertHelper.Hton((ushort)(parseList[1].Data.Length + 8)), parseList[1].UDPHdr->Length);
-            Assert.AreEqual(WinDivertHelper.Hton((ushort)(parseList[2].Data.Length + 8)), parseList[2].UDPHdr->Length);
+            Assert.AreEqual(port1, parseList[0].UDPHdr->SrcPort);
+            Assert.AreEqual(port1, parseList[1].UDPHdr->SrcPort);
+            Assert.AreEqual(port1, parseList[2].UDPHdr->SrcPort);
+            Assert.AreEqual(port2, parseList[0].UDPHdr->DstPort);
+            Assert.AreEqual(port2, parseList[1].UDPHdr->DstPort);
+            Assert.AreEqual(port2, parseList[2].UDPHdr->DstPort);
+            Assert.AreEqual(parseList[0].Data.Length + 8, parseList[0].UDPHdr->Length);
+            Assert.AreEqual(parseList[1].Data.Length + 8, parseList[1].UDPHdr->Length);
+            Assert.AreEqual(parseList[2].Data.Length + 8, parseList[2].UDPHdr->Length);
 
             Assert.IsTrue(parseList[0].Packet.Span[^parseList[0].Data.Length..] == parseList[0].Data.Span);
             Assert.IsTrue(parseList[1].Packet.Span[^parseList[1].Data.Length..] == parseList[1].Data.Span);
@@ -150,7 +157,7 @@ namespace WinDivertNATTests
         }
 
         [TestMethod]
-        public void Reset_Call_Reset()
+        public void Reset()
         {
             using var enumerator = new WinDivertPacketParser(recv).GetEnumerator();
             _ = enumerator.MoveNext();

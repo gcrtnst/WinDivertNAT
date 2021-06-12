@@ -43,7 +43,7 @@ namespace WinDivertNATTests
     public class SafeHandleReferenceTests
     {
         [TestMethod]
-        public void Ctor_NullHandle_SetInvalid()
+        public void Ctor_NullHandle()
         {
             var invalid = (IntPtr)(-1);
             using var href = new SafeHandleReference(null, invalid);
@@ -51,38 +51,33 @@ namespace WinDivertNATTests
         }
 
         [TestMethod]
-        public void Ctor_ValidHandle_SetHandle()
+        public void Ctor_ValidHandle()
         {
             using var handle = new SafeTestHandle();
             using var href = new SafeHandleReference(handle, (IntPtr)(-1));
-            Assert.AreEqual(handle.DangerousGetHandle(), href.RawHandle);
-        }
 
-        [TestMethod]
-        public void Ctor_ValidHandle_CallDangerousAddRef()
-        {
-            var handle = new SafeTestHandle();
-            var href = new SafeHandleReference(handle, (IntPtr)(-1));
+            Assert.AreEqual(handle.DangerousGetHandle(), href.RawHandle);
+
             handle.Dispose();
             Assert.IsFalse(handle.Released);
-            href.Dispose();
         }
 
         [TestMethod]
-        public void Dispose_ValidHandle_CallDangerousRelease()
+        public void Dispose_CallOnce()
         {
             var handle = new SafeTestHandle();
-            using (var href = new SafeHandleReference(handle, (IntPtr)(-1))) { }
-            handle.Dispose();
+            using (handle)
+            {
+                using var href = new SafeHandleReference(handle, (IntPtr)(-1));
+            }
             Assert.IsTrue(handle.Released);
         }
 
         [TestMethod]
-        public void Dispose_CallThreeTimes_NoException()
+        public void Dispose_CallThreeTimes()
         {
             using var handle = new SafeTestHandle();
-            var href = new SafeHandleReference(handle, (IntPtr)(-1));
-            href.Dispose();
+            using var href = new SafeHandleReference(handle, (IntPtr)(-1));
             href.Dispose();
             href.Dispose();
         }

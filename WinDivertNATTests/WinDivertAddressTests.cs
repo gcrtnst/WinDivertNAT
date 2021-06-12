@@ -41,30 +41,41 @@ namespace WinDivertNATTests
     public class WinDivertAddressTests
     {
         [TestMethod]
-        public void Loopback_GetSet_RoundTrip()
+        [DataRow(nameof(WinDivertAddress.Sniffed), (byte)(1 << 0))]
+        [DataRow(nameof(WinDivertAddress.Outbound), (byte)(1 << 1))]
+        [DataRow(nameof(WinDivertAddress.Loopback), (byte)(1 << 2))]
+        [DataRow(nameof(WinDivertAddress.Impostor), (byte)(1 << 3))]
+        [DataRow(nameof(WinDivertAddress.IPv6), (byte)(1 << 4))]
+        [DataRow(nameof(WinDivertAddress.IPChecksum), (byte)(1 << 5))]
+        [DataRow(nameof(WinDivertAddress.TCPChecksum), (byte)(1 << 6))]
+        [DataRow(nameof(WinDivertAddress.UDPChecksum), (byte)(1 << 7))]
+        public unsafe void Flag_Get(string name, byte input)
         {
             var addr = new WinDivertAddress();
-            Assert.AreEqual(false, addr.Loopback);
-            addr.Loopback = true;
-            Assert.AreEqual(true, addr.Loopback);
-            addr.Loopback = false;
-            Assert.AreEqual(false, addr.Loopback);
+            var flag = addr.GetType().GetProperty(name)!;
+            Assert.IsFalse((bool)flag.GetValue(addr)!);
+
+            *((byte*)&addr + 10) = input;
+            Assert.IsTrue((bool)flag.GetValue(addr)!);
         }
 
         [TestMethod]
-        public void Loopback_GetSet_NoSideEffects()
+        [DataRow(nameof(WinDivertAddress.Sniffed), (byte)(1 << 0))]
+        [DataRow(nameof(WinDivertAddress.Outbound), (byte)(1 << 1))]
+        [DataRow(nameof(WinDivertAddress.Loopback), (byte)(1 << 2))]
+        [DataRow(nameof(WinDivertAddress.Impostor), (byte)(1 << 3))]
+        [DataRow(nameof(WinDivertAddress.IPv6), (byte)(1 << 4))]
+        [DataRow(nameof(WinDivertAddress.IPChecksum), (byte)(1 << 5))]
+        [DataRow(nameof(WinDivertAddress.TCPChecksum), (byte)(1 << 6))]
+        [DataRow(nameof(WinDivertAddress.UDPChecksum), (byte)(1 << 7))]
+        public unsafe void Flag_Set(string name, byte expected)
         {
-            var addr = new WinDivertAddress
-            {
-                Loopback = true,
-            };
-            Assert.AreEqual(false, addr.Sniffed);
-            Assert.AreEqual(false, addr.Outbound);
-            Assert.AreEqual(false, addr.Impostor);
-            Assert.AreEqual(false, addr.IPv6);
-            Assert.AreEqual(false, addr.IPChecksum);
-            Assert.AreEqual(false, addr.TCPChecksum);
-            Assert.AreEqual(false, addr.UDPChecksum);
+            var addr = new WinDivertAddress();
+            var flag = addr.GetType().GetProperty(name)!;
+            var obj = (object)addr;
+            flag.SetValue(obj, true);
+            addr = (WinDivertAddress)obj;
+            Assert.AreEqual(expected, *((byte*)&addr + 10));
         }
     }
 }

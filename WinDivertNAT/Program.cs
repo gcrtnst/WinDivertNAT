@@ -159,7 +159,7 @@ namespace WinDivertNAT
             ReadOnlyMemory<byte> fobj;
             try
             {
-                fobj = WinDivertHelper.CompileFilter(v, WinDivertConstants.WinDivertLayer.Network);
+                fobj = WinDivert.CompileFilter(v, WinDivert.Layer.Network);
             }
             catch (WinDivertInvalidFilterException e)
             {
