@@ -69,10 +69,7 @@ namespace WinDivertNAT
             Filter = fobj;
         }
 
-        public WinDivertNAT(ReadOnlyMemory<byte> filter)
-        {
-            Filter = filter;
-        }
+        public WinDivertNAT(ReadOnlyMemory<byte> filter) => Filter = filter;
 
         public void Run(CancellationToken token)
         {
