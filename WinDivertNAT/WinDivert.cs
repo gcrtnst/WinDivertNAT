@@ -54,10 +54,7 @@ namespace WinDivertNAT
             handle = Open(fobj.Span, layer, priority, flags);
         }
 
-        public WinDivert(ReadOnlySpan<byte> filter, Layer layer, short priority, Flag flags)
-        {
-            handle = Open(filter, layer, priority, flags);
-        }
+        public WinDivert(ReadOnlySpan<byte> filter, Layer layer, short priority, Flag flags) => handle = Open(filter, layer, priority, flags);
 
         private static unsafe SafeWinDivertHandle Open(ReadOnlySpan<byte> filter, Layer layer, short priority, Flag flags)
         {
@@ -255,11 +252,7 @@ namespace WinDivertNAT
 
     public class SafeWinDivertHandle : SafeHandleZeroOrMinusOneIsInvalid
     {
-        internal SafeWinDivertHandle(IntPtr existingHandle, bool ownsHandle) : base(ownsHandle)
-        {
-            SetHandle(existingHandle);
-        }
-
+        internal SafeWinDivertHandle(IntPtr existingHandle, bool ownsHandle) : base(ownsHandle) => SetHandle(existingHandle);
         protected override bool ReleaseHandle() => NativeMethods.WinDivertClose(handle);
     }
 
@@ -297,16 +290,8 @@ namespace WinDivertNAT
     {
         private readonly WinDivertPacketParser e;
 
-        public WinDivertIndexedPacketParser(Memory<byte> packet)
-        {
-            e = new WinDivertPacketParser(packet);
-        }
-
-        public WinDivertIndexedPacketParser(WinDivertPacketParser e)
-        {
-            this.e = e;
-        }
-
+        public WinDivertIndexedPacketParser(Memory<byte> packet) => e = new WinDivertPacketParser(packet);
+        public WinDivertIndexedPacketParser(WinDivertPacketParser e) => this.e = e;
         public WinDivertIndexedPacketEnumerator GetEnumerator() => new(e.GetEnumerator());
         IEnumerator<(int, WinDivertParseResult)> IEnumerable<(int, WinDivertParseResult)>.GetEnumerator() => GetEnumerator();
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
@@ -347,11 +332,7 @@ namespace WinDivertNAT
     {
         private readonly Memory<byte> packet;
 
-        public WinDivertPacketParser(Memory<byte> packet)
-        {
-            this.packet = packet;
-        }
-
+        public WinDivertPacketParser(Memory<byte> packet) => this.packet = packet;
         public WinDivertPacketEnumerator GetEnumerator() => new(packet);
         IEnumerator<WinDivertParseResult> IEnumerable<WinDivertParseResult>.GetEnumerator() => new WinDivertPacketEnumerator(packet);
         IEnumerator IEnumerable.GetEnumerator() => new WinDivertPacketEnumerator(packet);
@@ -612,11 +593,7 @@ namespace WinDivertNAT
     {
         private readonly ushort raw;
 
-        private NetworkUInt16(ushort raw)
-        {
-            this.raw = raw;
-        }
-
+        private NetworkUInt16(ushort raw) => this.raw = raw;
         public static implicit operator NetworkUInt16(ushort x) => new(NativeMethods.WinDivertHelperHtons(x));
         public static implicit operator ushort(NetworkUInt16 x) => NativeMethods.WinDivertHelperNtohs(x.raw);
         public static bool operator ==(NetworkUInt16 left, NetworkUInt16 right) => left.Equals(right);
@@ -638,11 +615,7 @@ namespace WinDivertNAT
     {
         private readonly uint raw;
 
-        private NetworkUInt32(uint raw)
-        {
-            this.raw = raw;
-        }
-
+        private NetworkUInt32(uint raw) => this.raw = raw;
         public static implicit operator NetworkUInt32(uint x) => new(NativeMethods.WinDivertHelperHtonl(x));
         public static implicit operator uint(NetworkUInt32 x) => NativeMethods.WinDivertHelperNtohl(x.raw);
         public static bool operator ==(NetworkUInt32 left, NetworkUInt32 right) => left.Equals(right);
