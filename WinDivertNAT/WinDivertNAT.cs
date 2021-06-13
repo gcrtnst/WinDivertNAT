@@ -118,8 +118,8 @@ namespace WinDivertNAT
                     return;
                 }
 
-                var recv = packet[0..(int)recvLen];
-                var addr = abuf[0..(int)addrLen];
+                var recv = packet[..(int)recvLen];
+                var addr = abuf[..(int)addrLen];
                 foreach (var (i, p) in new WinDivertIndexedPacketParser(recv))
                 {
                     Log(p, in addr.Span[i]);
@@ -158,8 +158,8 @@ namespace WinDivertNAT
                     return;
                 }
 
-                var recv = packet[0..(int)recvLen];
-                var addr = abuf[0..(int)addrLen];
+                var recv = packet[..(int)recvLen];
+                var addr = abuf[..(int)addrLen];
                 foreach (var (i, p) in new WinDivertIndexedPacketParser(recv)) Log(p, in addr.Span[i]);
             }
         }
