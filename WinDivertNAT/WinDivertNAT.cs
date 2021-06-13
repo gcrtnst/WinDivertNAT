@@ -49,20 +49,19 @@ namespace WinDivertNAT
         public ulong QueueSize = 4194304;
         public int BufLength = 1;
         public int BufSize = 40 + 0xFFFF;
-
-        public bool Drop { get; init; } = false;
-        public bool? Outbound { get; init; } = null;
-        public uint? IfIdx { get; init; } = null;
-        public uint? SubIfIdx { get; init; } = null;
-        public NetworkIPv4Addr? IPv4SrcAddr { get; init; } = null;
-        public NetworkIPv4Addr? IPv4DstAddr { get; init; } = null;
-        public NetworkIPv6Addr? IPv6SrcAddr { get; init; } = null;
-        public NetworkIPv6Addr? IPv6DstAddr { get; init; } = null;
-        public NetworkUInt16? TCPSrcPort { get; init; } = null;
-        public NetworkUInt16? TCPDstPort { get; init; } = null;
-        public NetworkUInt16? UDPSrcPort { get; init; } = null;
-        public NetworkUInt16? UDPDstPort { get; init; } = null;
-        public TextWriter? Logger { get; init; } = null;
+        public bool Drop = false;
+        public bool? Outbound = null;
+        public uint? IfIdx = null;
+        public uint? SubIfIdx = null;
+        public NetworkIPv4Addr? IPv4SrcAddr = null;
+        public NetworkIPv4Addr? IPv4DstAddr = null;
+        public NetworkIPv6Addr? IPv6SrcAddr = null;
+        public NetworkIPv6Addr? IPv6DstAddr = null;
+        public NetworkUInt16? TCPSrcPort = null;
+        public NetworkUInt16? TCPDstPort = null;
+        public NetworkUInt16? UDPSrcPort = null;
+        public NetworkUInt16? UDPDstPort = null;
+        public TextWriter? Logger = null;
 
         public WinDivertNAT(string filter)
         {
