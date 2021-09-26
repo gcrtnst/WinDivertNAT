@@ -63,6 +63,7 @@ namespace WinDivertNAT
             var udpSrcPort = (ushort?)null;
             var udpDstPort = (ushort?)null;
             var log = false;
+            var install = false;
             var help = false;
             var p = new OptionSet()
             {
@@ -86,6 +87,7 @@ namespace WinDivertNAT
                 { "udp-src-port=", (ushort v) => udpSrcPort = v },
                 { "udp-dst-port=", (ushort v) => udpDstPort = v },
                 { "l|log", (string v) => log = v is not null },
+                { "install", (string v) => install = v is not null },
                 { "h|?|help", (string v) => help = v is not null },
             };
 
@@ -111,6 +113,11 @@ namespace WinDivertNAT
             {
                 Console.Error.WriteLine($"Error: Unrecognized argument '{extra[0]}'.");
                 return 1;
+            }
+            if (install)
+            {
+                using var divert = new WinDivert("false", WinDivert.Layer.Network, 0, WinDivert.Flag.Sniff | WinDivert.Flag.RecvOnly);
+                return 0;
             }
 
             var nat = new WinDivertNAT(filter)
