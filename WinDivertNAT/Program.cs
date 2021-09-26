@@ -43,7 +43,7 @@ namespace WinDivertNAT
     {
         private static int Main(string[] args)
         {
-            var filter = ReadOnlyMemory<byte>.Empty;
+            var filter = WinDivert.CompileFilter("false", WinDivert.Layer.Network);
             var priority = (short)0;
             var queueLength = (ulong)4096;
             var queueTime = (ulong)2000;
@@ -110,11 +110,6 @@ namespace WinDivertNAT
             if (extra.Count > 0)
             {
                 Console.Error.WriteLine($"Error: Unrecognized argument '{extra[0]}'.");
-                return 1;
-            }
-            if (filter.IsEmpty)
-            {
-                Console.Error.WriteLine($"Error: Option --filter is required.");
                 return 1;
             }
 
