@@ -36,6 +36,7 @@ using Mono.Options;
 using System;
 using System.Collections.Generic;
 using System.Threading;
+using SharpDivert;
 
 namespace WinDivertNAT
 {
