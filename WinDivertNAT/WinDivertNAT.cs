@@ -32,12 +32,12 @@
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 
+using SharpDivert;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Threading;
-using SharpDivert;
 
 namespace WinDivertNAT
 {
