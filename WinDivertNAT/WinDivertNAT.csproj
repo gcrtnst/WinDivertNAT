@@ -29,7 +29,7 @@
 
   <ItemGroup>
     <PackageReference Include="Mono.Options" Version="6.12.0.148" />
-    <PackageReference Include="SharpDivert" Version="1.0.1" />
+    <PackageReference Include="SharpDivert" Version="1.1.0-beta.2" />
   </ItemGroup>
 
 </Project>
